@@ -1,7 +1,13 @@
 <script setup>
 import { computed, inject, nextTick, ref } from "vue";
+import { PrismEditor } from 'vue-prism-editor';
 import { MInput, MRichEditor, MDropdown, MList, MListItem, MDialog } from "../../../lib";
 import UploadInput from "./UploadInput.vue";
+
+import 'vue-prism-editor/dist/prismeditor.min.css';
+import { highlight, languages } from 'prismjs/components/prism-core';
+import 'prismjs/components/prism-json';
+import 'prismjs/themes/prism.css';
 
 const props = defineProps(['label', 'modelValue', 'schema']);
 defineEmits(['update:modelValue']);
@@ -31,6 +37,10 @@ const insertImage = filePath => {
 }
 
 const valueLength = computed(() => (props.modelValue ? props.modelValue.length : 0) + (props.schema.maxlength !== undefined ? `/${props.schema.maxlength}` : ''));
+
+const highlighter = (code) => {
+  return highlight(code, languages.json);
+};
 </script>
 
 <template>
@@ -49,6 +59,13 @@ const valueLength = computed(() => (props.modelValue ? props.modelValue.length :
       />
     </MDialog>
   </div>
+
+  <PrismEditor
+    v-else-if="schema.editor === 'code'"
+    :highlight="highlighter"
+    :modelValue="modelValue"
+    @update:modelValue="event => $emit('update:modelValue', event)"
+  />
 
   <MDropdown
     v-else-if="schema.choice"
@@ -104,6 +121,18 @@ const valueLength = computed(() => (props.modelValue ? props.modelValue.length :
 .text-input {
   .m-dialog .m-content-dialog {
     @apply max-w-2xl;
+  }
+}
+
+.prism-editor-wrapper {
+  @apply bg-white block border w-full p-3 rounded-lg outline-none focus:border-black dark:bg-gray-900 dark:border-gray-500 dark:focus:border-primary-500;
+
+  font-family: monospace;
+  
+  .prism-editor__textarea {
+    &:focus-visible {
+      outline: none;
+    }
   }
 }
 </style>

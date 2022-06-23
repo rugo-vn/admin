@@ -37,6 +37,7 @@
     "pluralize": "^8.0.0",
     "postcss": "^8.4.13",
     "prettier": "^2.5.1",
+    "prismjs": "^1.28.0",
     "qs": "^6.10.3",
     "sass": "^1.52.1",
     "sass-loader": "^13.0.0",
@@ -46,6 +47,7 @@
     "vite": "^2.9.5",
     "vitest": "^0.9.3",
     "vue-dragscroll": "^3.0.1",
-    "vue-minimal-admin": "./lib"
+    "vue-minimal-admin": "./lib",
+    "vue-prism-editor": "^2.0.0-alpha.2"
   }
 }
