@@ -110,7 +110,7 @@ watch([
         class="justify-center w-8 h-8 px-0 py-0 mr-2"
         @click="$emit('create')"
       >
-        <ion-icon class="text-lg" icon="create" />
+        <ion-icon class="text-lg" name="create" />
       </MButton>
 
       <MButton
@@ -119,7 +119,7 @@ watch([
         class="justify-center w-8 h-8 px-0 py-0 mr-2"
         @click="remove(selected)"
       >
-        <ion-icon class="text-lg" icon="trash" />
+        <ion-icon class="text-lg" name="trash" />
       </MButton>
     </div>
 

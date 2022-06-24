@@ -129,14 +129,14 @@ const upload = () => {
         class="justify-center w-8 h-8 px-0 py-0 mr-2"
         @click="uploadInput.click()"
       >
-        <ion-icon class="text-lg" icon="cloud-upload" />
+        <ion-icon class="text-lg" name="cloud-upload" />
       </MButton>
 
       <MButton
         variant="primary"
         class="justify-center w-8 h-8 px-0 py-0 mr-2"
       >
-        <ion-icon class="text-lg" icon="document" />
+        <ion-icon class="text-lg" name="document" />
       </MButton>
 
       <MButton
@@ -144,7 +144,7 @@ const upload = () => {
         class="justify-center w-8 h-8 px-0 py-0 mr-2"
         @click="createDirectory"
       >
-        <ion-icon class="text-lg" icon="folder" />
+        <ion-icon class="text-lg" name="folder" />
       </MButton>
 
       <MButton
@@ -153,7 +153,7 @@ const upload = () => {
         class="justify-center w-8 h-8 px-0 py-0 mr-2"
         @click="remove(selected)"
       >
-        <ion-icon class="text-lg" icon="trash" />
+        <ion-icon class="text-lg" name="trash" />
       </MButton>
     </div>
 
