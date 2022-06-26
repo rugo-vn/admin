@@ -9,7 +9,7 @@ defineEmits(['update:modelValue']);
 <template>
   <TextInput
     :schema="{ editor: 'code' }"
-    :modelValue="modelValue ? JSON.stringify(modelValue, 0, 2) : null"
+    :modelValue="modelValue && typeof modelValue === 'object' ? JSON.stringify(modelValue, 0, 2) : modelValue"
     @update:modelValue="$emit('update:modelValue', $event)"
   />
 </template>

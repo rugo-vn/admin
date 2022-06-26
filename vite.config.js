@@ -1,5 +1,6 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import svgLoader from 'vite-svg-loader';
 
 const base = process.env.BASE || ''
 
@@ -16,15 +17,7 @@ export default defineConfig({
     outDir: `dist/${base}`
   },
 
-  plugins: [
-    vue({
-      template: {
-        compilerOptions: {
-          isCustomElement: tag => tag.startsWith('ion-')
-        }
-      }
-    })
-  ],
+  plugins: [vue(), svgLoader()],
 
   resolve: {
     dedupe: [

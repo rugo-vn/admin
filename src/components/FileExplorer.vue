@@ -214,10 +214,10 @@ const upload = () => {
 
       <template #cell(name)="{value, row}">
         <a class="cursor-pointer hover:underline" @click="open(row)">
-          <ion-icon class="align-text-top" name="folder" v-if="row.mime === DIRECTORY_MIME" />
-          <ion-icon class="align-text-top" name="image" v-else-if="row.mime && row.mime.indexOf('image') === 0" />
-          <ion-icon class="align-text-top" name="videocam" v-else-if="row.mime && row.mime.indexOf('video') === 0" />
-          <ion-icon class="align-text-top" name="document" v-else />
+          <ion-icon class="align-text-top inline-block" name="folder" v-if="row.mime === DIRECTORY_MIME" />
+          <ion-icon class="align-text-top inline-block" name="image" v-else-if="row.mime && row.mime.indexOf('image') === 0" />
+          <ion-icon class="align-text-top inline-block" name="videocam" v-else-if="row.mime && row.mime.indexOf('video') === 0" />
+          <ion-icon class="align-text-top inline-block" name="document" v-else />
           <span class="ml-2">{{ value }}</span>
         </a>
       </template>

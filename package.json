@@ -48,6 +48,7 @@
     "vitest": "^0.9.3",
     "vue-dragscroll": "^3.0.1",
     "vue-minimal-admin": "./lib",
+    "vite-svg-loader": "^3.4.0",
     "vue-prism-editor": "^2.0.0-alpha.2"
   }
 }
