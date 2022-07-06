@@ -1,47 +1,46 @@
 <script setup>
-import { reactive } from 'vue';
-import uniqid from "uniqid";
-import * as Inputs from './index.js';
-import { MButton } from '../../../lib';
+import { reactive } from "vue";
+import { generateId } from "@rugo-vn/vue/src/utils.js";
+import * as Inputs from "./index.js";
+import { MButton } from "@rugo-vn/vue";
 
-const props = defineProps(['label', 'modelValue', 'schema']);
-const emit = defineEmits(['update:modelValue']);
+const props = defineProps(["label", "modelValue", "schema"]);
+const emit = defineEmits(["update:modelValue"]);
 
 const items = reactive([]);
 
 const addItem = (value = null) => {
   items.push({
-    id: uniqid(),
-    value
+    id: generateId(),
+    value,
   });
-}
+};
 
 const removeItem = (item) => {
   items.splice(items.indexOf(item), 1);
-}
+};
 
-const getView = type => {
-  const viewName = type[0].toUpperCase() + type.substring(1).toLowerCase() + 'Input';
-  
-  if (Inputs[viewName])
-    return Inputs[viewName];
+const getView = (type) => {
+  const viewName =
+    type[0].toUpperCase() + type.substring(1).toLowerCase() + "Input";
+
+  if (Inputs[viewName]) return Inputs[viewName];
 
   return null;
-}
+};
 
 const updateChange = () => {
-  const result = items.map(item => item.value).filter(i => i !== null);
-  emit('update:modelValue', result.length ? result : null);
-}
+  const result = items.map((item) => item.value).filter((i) => i !== null);
+  emit("update:modelValue", result.length ? result : null);
+};
 
 const initValue = () => {
-  while (items.length)
-    items.splice(0, 1);
+  while (items.length) items.splice(0, 1);
 
-  for (let value of props.modelValue || []){
+  for (let value of props.modelValue || []) {
     addItem(value);
   }
-}
+};
 
 initValue();
 </script>
@@ -54,7 +53,11 @@ initValue();
   >
     <component
       class="w-full"
-      :is="schema.children ? (getView(schema.children.type) || Inputs.TextInput) : Inputs.TextInput"
+      :is="
+        schema.children
+          ? getView(schema.children.type) || Inputs.TextInput
+          : Inputs.TextInput
+      "
       :schema="schema.children || { editor: 'code' }"
       v-model="item.value"
       @update:modelValue="updateChange"

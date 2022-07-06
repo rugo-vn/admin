@@ -1,3 +1,0 @@
-[submodule "lib"]
-	path = lib
-	url = git@github.com:haova/vue-minimal-admin.git

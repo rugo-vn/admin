@@ -1,18 +1,18 @@
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-export const useInfoStore = defineStore('info', {
-  state:  () => ({
+export const useInfoStore = defineStore("info", {
+  state: () => ({
     info: [],
-    isLoading: false
+    isLoading: false,
   }),
-  
+
   actions: {
-    setInfo(data){
+    setInfo(data) {
       this.info = data;
     },
 
-    setIsLoading(value){
-      this.isLoading = value
-    }
-  }
-})
+    setIsLoading(value) {
+      this.isLoading = value;
+    },
+  },
+});

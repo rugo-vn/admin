@@ -1,9 +1,8 @@
 <script setup>
-import { MCheckbox } from "../../../lib";
+import { MCheckbox } from "@rugo-vn/vue";
 
-defineProps(['modelValue', 'schema']);
-defineEmits(['update:modelValue']);
-
+defineProps(["modelValue", "schema"]);
+defineEmits(["update:modelValue"]);
 </script>
 
 <template>

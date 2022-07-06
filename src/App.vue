@@ -1,8 +1,13 @@
 <script setup>
-import { inject, ref } from 'vue';
-import { RouterView } from 'vue-router'
-import { MNotification, MLoader, MConfirmDialog, MInputDialog } from '../lib';
-import { useInfoStore } from './stores/info';
+import { inject, ref } from "vue";
+import { RouterView } from "vue-router";
+import {
+  MNotification,
+  MLoader,
+  MConfirmDialog,
+  MInputDialog,
+} from "@rugo-vn/vue";
+import { useInfoStore } from "./stores/info";
 
 const infoStore = useInfoStore();
 
@@ -23,9 +28,8 @@ const noti = inject("mnoti");
 noti.register(notification);
 
 // loader
-const loader = inject('loader');
-loader.onChange(v => infoStore.setIsLoading(v));
-
+const loader = inject("loader");
+loader.onChange((v) => infoStore.setIsLoading(v));
 </script>
 
 <template>

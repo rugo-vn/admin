@@ -1,26 +1,31 @@
 <script setup>
-import { computed, inject, reactive, ref, watch } from 'vue';
-import { MList, MListItem, MTable, MDropdown, MCheckbox, MButton, MDialog } from '../../lib';
-import RelationValue from './values/RelationValue.vue';
-import { formatValueWithSchema } from '../utils';
+import { computed, inject, reactive, ref, watch } from "vue";
+import {
+  MList,
+  MListItem,
+  MTable,
+  MDropdown,
+  MCheckbox,
+  MButton,
+  MDialog,
+} from "@rugo-vn/vue";
+import RelationValue from "./values/RelationValue.vue";
+import { formatValueWithSchema } from "../utils";
 
-const props = defineProps(['data', 'schema']);
-const emit = defineEmits(['create', 'remove', 'edit'])
+const props = defineProps(["data", "schema"]);
+const emit = defineEmits(["create", "remove", "edit"]);
 
 const dialog = inject("mdialog");
 
 // infomation
 const fields = computed(() => {
   const result = [];
-  for (let key in props.schema){
-    if (key[0] === '_' && key[1] === '_')
-      continue;
+  for (let key in props.schema) {
+    if (key[0] === "_" && key[1] === "_") continue;
 
-    if (props.schema[key].hidden)
-      continue;
+    if (props.schema[key].hidden) continue;
 
-    if (props.schema[key].preview === false)
-      continue;
+    if (props.schema[key].preview === false) continue;
 
     result.push(key);
   }
@@ -31,31 +36,29 @@ const fields = computed(() => {
 // selected documents
 const selected = reactive(new Set());
 
-const isAnySelectAndNotAll = computed(() => selected.size > 0 && selected.size < props.data.length);
+const isAnySelectAndNotAll = computed(
+  () => selected.size > 0 && selected.size < props.data.length
+);
 const isSelectAll = computed(() => selected.size === props.data.length);
 
-const isSelect = doc => selected.has(doc);
+const isSelect = (doc) => selected.has(doc);
 
 const deselectAll = () => {
-  for (let v of selected)
-    selected.delete(v);
-}
+  for (let v of selected) selected.delete(v);
+};
 
 const toggleSelect = (doc, checked) => {
-  if (checked)
-    selected.add(doc);
-  else
-    selected.delete(doc);
-}
+  if (checked) selected.add(doc);
+  else selected.delete(doc);
+};
 
-const toggleSelectAll = checked => {
-  if (checked){
-    for (let v of props.data)
-      selected.add(v);
+const toggleSelectAll = (checked) => {
+  if (checked) {
+    for (let v of props.data) selected.add(v);
   } else {
     deselectAll();
   }
-}
+};
 
 // system
 const currentDoc = ref([]);
@@ -63,43 +66,41 @@ const viewDialog = ref(null);
 
 const reload = () => {
   deselectAll();
-}
+};
 
 const view = (doc) => {
-  currentDoc.value = [
-    { key: 'Id', value: doc._id },
-  ];
+  currentDoc.value = [{ key: "Id", value: doc._id }];
 
-  for (let key in props.schema){
-    if (key[0] === '_' && key[1] === '_')
-      continue;
+  for (let key in props.schema) {
+    if (key[0] === "_" && key[1] === "_") continue;
 
-    if (['_id', 'createdAt', 'updatedAt'].indexOf(key) !== -1)
-      continue;
-    
+    if (["_id", "createdAt", "updatedAt"].indexOf(key) !== -1) continue;
+
     currentDoc.value.push({
       key,
-      value: formatValueWithSchema(doc[key], props.schema[key])
+      value: formatValueWithSchema(doc[key], props.schema[key]),
     });
   }
 
-  currentDoc.value.push({ key: 'Created At', value: (new Date(doc.createdAt)).toLocaleString('vi-VN') });
-  currentDoc.value.push({ key: 'Updated At', value: (new Date(doc.updatedAt)).toLocaleString('vi-VN') });
+  currentDoc.value.push({
+    key: "Created At",
+    value: new Date(doc.createdAt).toLocaleString("vi-VN"),
+  });
+  currentDoc.value.push({
+    key: "Updated At",
+    value: new Date(doc.updatedAt).toLocaleString("vi-VN"),
+  });
 
   viewDialog.value.show();
-}
+};
 
 const remove = async (docs) => {
   if (await dialog.show("confirm")) {
-    emit('remove', docs);
-  };
-}
+    emit("remove", docs);
+  }
+};
 
-watch([
-  () => props.data,
-  () => props.schema
-], reload);
-
+watch([() => props.data, () => props.schema], reload);
 </script>
 
 <template>
@@ -124,11 +125,8 @@ watch([
     </div>
 
     <div class="wrapper select-none" v-dragscroll>
-      <MTable
-        :data="props.data"
-        :labels="fields"
-      >
-        <template #beforerow="{row}">
+      <MTable :data="props.data" :labels="fields">
+        <template #beforerow="{ row }">
           <MCheckbox
             v-if="row"
             :modelValue="isSelect(row)"
@@ -143,23 +141,35 @@ watch([
           />
         </template>
 
-        <template #afterrow="{row}">
-          <MDropdown v-if="row" variant="none" position="right" :autohide="true">
+        <template #afterrow="{ row }">
+          <MDropdown
+            v-if="row"
+            variant="none"
+            position="right"
+            :autohide="true"
+          >
             <MList>
               <MListItem @click="view(row)">View</MListItem>
               <MListItem @click="$emit('edit', row)">Edit</MListItem>
-              <MListItem class="text-red-500" @click="remove([row])">Delete</MListItem>
+              <MListItem class="text-red-500" @click="remove([row])"
+                >Delete</MListItem
+              >
             </MList>
           </MDropdown>
         </template>
 
-        <template #cell()="{value, label}">
+        <template #cell()="{ value, label }">
           <RelationValue
-            v-if="props.schema[label] && props.schema[label].type === 'relation'"
+            v-if="
+              props.schema[label] && props.schema[label].type === 'relation'
+            "
             :value="value"
             :schema="props.schema[label]"
           />
-          <span v-else v-html="formatValueWithSchema(value, props.schema[label])"></span>
+          <span
+            v-else
+            v-html="formatValueWithSchema(value, props.schema[label])"
+          ></span>
         </template>
       </MTable>
     </div>
@@ -177,7 +187,6 @@ watch([
 </template>
 
 <style lang="scss">
-
 .collection-data-table {
   .wrapper {
     overflow: auto;
@@ -188,7 +197,8 @@ watch([
     table {
       table-layout: auto;
 
-      th, td {
+      th,
+      td {
         min-width: 2em;
         min-height: 2em;
         white-space: pre-wrap;
@@ -198,7 +208,7 @@ watch([
       td:first-child {
         width: 3em;
         min-width: 3em;
-        
+
         div {
           display: flex;
           width: 100%;
@@ -214,7 +224,7 @@ watch([
       }
 
       tr:hover {
-        @apply bg-gray-50; 
+        @apply bg-gray-50;
       }
     }
   }
@@ -229,14 +239,13 @@ watch([
 
   .toolbar {
     .m-button {
-
     }
   }
 
   .m-dialog {
     table {
       table-layout: auto;
-      
+
       th:first-child,
       td:first-child {
         @apply capitalize;

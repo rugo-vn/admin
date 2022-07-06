@@ -1,50 +1,35 @@
-# Rugo Admin
+# admin
 
-## Schema Additions
+This template should help get you started developing with Vue 3 in Vite.
 
-```json
-{
-  "__icon": "ion-icon-name", // icon for collection in admin dashboard, do not have outline
-}
+## Recommended IDE Setup
+
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+
+## Customize configuration
+
+See [Vite Configuration Reference](https://vitejs.dev/config/).
+
+## Project Setup
+
+```sh
+npm install
 ```
 
-## Field Schema Additions
+### Compile and Hot-Reload for Development
 
-Any field:
-
-```json
-{
-  "hidden": true, // hidden from preview and form, but visible in view
-  "preview": false, // hidden from preview, but visible in form and view
-}
+```sh
+npm run dev
 ```
 
-Text field:
+### Compile and Minify for Production
 
-```json
-{
-  "type": "text",
-  "editor": "rich", // rich text editor
-  "upload": { "ref": "resources", "root": "/public" }, // upload image for rich text editor
-}
+```sh
+npm run build
 ```
 
-Upload field:
+### Lint with [ESLint](https://eslint.org/)
 
-```json
-{
-  "type": "upload",
-  "ref": "resources", // model to upload
-  "root": "/public", // directory to upload
-}
-```
-
-Relation field:
-
-```json
-{
-  "type": "relation",
-  "ref": "categories", // model to relation
-  "str": "name", // name to show in select box
-}
+```sh
+npm run lint
 ```

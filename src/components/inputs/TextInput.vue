@@ -1,42 +1,57 @@
 <script setup>
 import { computed, inject, nextTick, ref } from "vue";
-import { PrismEditor } from 'vue-prism-editor';
-import { MInput, MRichEditor, MDropdown, MList, MListItem, MDialog } from "../../../lib";
+import { PrismEditor } from "vue-prism-editor";
+import {
+  MInput,
+  MRichEditor,
+  MDropdown,
+  MList,
+  MListItem,
+  MDialog,
+} from "@rugo-vn/vue";
 import UploadInput from "./UploadInput.vue";
 
-import 'vue-prism-editor/dist/prismeditor.min.css';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-json';
-import 'prismjs/themes/prism.css';
+import "vue-prism-editor/dist/prismeditor.min.css";
+import { highlight, languages } from "prismjs/components/prism-core";
+import "prismjs/components/prism-json";
+import "prismjs/themes/prism.css";
 
-const props = defineProps(['label', 'modelValue', 'schema']);
-defineEmits(['update:modelValue']);
+const props = defineProps(["label", "modelValue", "schema"]);
+defineEmits(["update:modelValue"]);
 
-const noti = inject('mnoti');
+const noti = inject("mnoti");
 const dialog = ref(null);
 let quill;
 
-const prepareInsertion = q => {
+const prepareInsertion = (q) => {
   quill = q;
 
   if (!props.schema.upload)
-    return noti.push('warn', 'Do not have upload config!');
+    return noti.push("warn", "Do not have upload config!");
 
   dialog.value.show();
-}
+};
 
-const insertImage = filePath => {
+const insertImage = (filePath) => {
   const baseURL = import.meta.env.ADMIN_API_BASE_URL;
   dialog.value.hide();
-  
+
   quill.focus();
   nextTick(() => {
     const selection = quill.getSelection();
-    quill.insertEmbed(selection ? selection.index : 0, 'image', `${baseURL}${filePath}`);
+    quill.insertEmbed(
+      selection ? selection.index : 0,
+      "image",
+      `${baseURL}${filePath}`
+    );
   });
-}
+};
 
-const valueLength = computed(() => (props.modelValue ? props.modelValue.length : 0) + (props.schema.maxlength !== undefined ? `/${props.schema.maxlength}` : ''));
+const valueLength = computed(
+  () =>
+    (props.modelValue ? props.modelValue.length : 0) +
+    (props.schema.maxlength !== undefined ? `/${props.schema.maxlength}` : "")
+);
 
 const highlighter = (code) => {
   return highlight(code, languages.json);
@@ -47,7 +62,7 @@ const highlighter = (code) => {
   <div v-if="schema.editor === 'rich'" class="text-input">
     <MRichEditor
       :modelValue="modelValue"
-      @update:modelValue="event => $emit('update:modelValue', event)"
+      @update:modelValue="(event) => $emit('update:modelValue', event)"
       @insertImage="prepareInsertion"
     />
 
@@ -64,7 +79,7 @@ const highlighter = (code) => {
     v-else-if="schema.editor === 'code'"
     :highlight="highlighter"
     :modelValue="modelValue"
-    @update:modelValue="event => $emit('update:modelValue', event)"
+    @update:modelValue="(event) => $emit('update:modelValue', event)"
   />
 
   <MDropdown
@@ -73,25 +88,28 @@ const highlighter = (code) => {
     position="left"
     :autohide="true"
   >
-    <template #open="{click}">
+    <template #open="{ click }">
       <div class="relative">
         <MInput
-          class="my-0"
+          class="my-[0!important]"
           @click="click"
           :disabled="true"
           :modelValue="modelValue"
         />
 
         <button
-          class="border-2 border-warn-500 text-warn-500 rounded-full w-6 h-6 opacity-50 inline-flex items-center justify-center absolute right-9 top-2.5
-          hover:opacity-100"
+          class="border-2 border-warn-500 text-warn-500 rounded-full w-6 h-6 opacity-50 inline-flex items-center justify-center absolute right-9 top-2.5 hover:opacity-100"
           v-if="modelValue && !schema.required && !schema.default"
           @click="$emit('update:modelValue', null)"
         >
           <ion-icon class="text-lg" name="close" />
         </button>
 
-        <ion-icon @click="click" class="text-lg absolute right-2.5 top-3.5 text-gray-500" name="chevron-down" />
+        <ion-icon
+          @click="click"
+          class="text-lg absolute right-2.5 top-3.5 text-gray-500"
+          name="chevron-down"
+        />
       </div>
     </template>
 
@@ -105,15 +123,19 @@ const highlighter = (code) => {
       </MListItem>
     </MList>
   </MDropdown>
-  
+
   <div v-else class="relative">
     <MInput
-      class="my-0"
+      class="my-[0!important]"
       :modelValue="modelValue"
-      @update:modelValue="event => $emit('update:modelValue', event)"
+      @update:modelValue="(event) => $emit('update:modelValue', event)"
     />
 
-    <div class="absolute bottom-[-1.25em] right-2 text-[.8em] bg-white p-1 text-gray-400">{{ valueLength }}</div>
+    <div
+      class="absolute bottom-[-1.25em] right-2 text-[.8em] bg-white p-1 text-gray-400"
+    >
+      {{ valueLength }}
+    </div>
   </div>
 </template>
 
@@ -128,7 +150,7 @@ const highlighter = (code) => {
   @apply bg-white block border w-full p-3 rounded-lg outline-none focus:border-black dark:bg-gray-900 dark:border-gray-500 dark:focus:border-primary-500;
 
   font-family: monospace;
-  
+
   .prism-editor__textarea {
     &:focus-visible {
       outline: none;

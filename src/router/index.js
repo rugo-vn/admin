@@ -1,4 +1,5 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from "vue-router";
+import { MAuthLayout } from "@rugo-vn/vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -7,7 +8,7 @@ const router = createRouter({
     { path: "/signout", redirect: "/signin" },
     {
       path: "/signin",
-      component: () => import("../layouts/AuthLayout.vue"),
+      component: MAuthLayout,
       children: [
         {
           path: "",
@@ -27,25 +28,27 @@ const router = createRouter({
         },
 
         {
-          name: 'MemTableCollection',
+          name: "MemTableCollection",
           path: "mem/:collectionName",
-          component: () => import("../views/dashboard/collection/TableView.vue"),
+          component: () =>
+            import("../views/dashboard/collection/TableView.vue"),
         },
 
         {
-          name: 'MongoTableCollection',
+          name: "MongoTableCollection",
           path: "mongo/:collectionName",
-          component: () => import("../views/dashboard/collection/TableView.vue"),
+          component: () =>
+            import("../views/dashboard/collection/TableView.vue"),
         },
 
         {
-          name: 'FsCollection',
+          name: "FsCollection",
           path: "fs/:collectionName",
           component: () => import("../views/dashboard/collection/FsView.vue"),
-        }
-      ]
-    }
-  ]
-})
+        },
+      ],
+    },
+  ],
+});
 
-export default router
+export default router;

@@ -1,14 +1,14 @@
 <script setup>
-import { MInput } from "../../../lib";
+import { MInput } from "@rugo-vn/vue";
 
-defineProps(['label', 'modelValue', 'schema']);
-defineEmits(['update:modelValue']);
+defineProps(["label", "modelValue", "schema"]);
+defineEmits(["update:modelValue"]);
 </script>
 
-<template> 
+<template>
   <MInput
     type="password"
     class="my-0"
-    @update:modelValue="event => $emit('update:modelValue', event)"
+    @update:modelValue="(event) => $emit('update:modelValue', event)"
   />
 </template>
