@@ -1,12 +1,12 @@
 <script setup>
-import objectPath from "object-path";
 import { ref, watch } from "vue";
 
 import { useSchemaStore } from "../../stores/schema.js";
 import { formatLabel } from "../../utils.js";
-import RCheckbox from "../RCheckbox.vue";
+import AutoInput from "./AutoInput.vue";
 
 const props = defineProps([
+  "label",
   "value",
   "path",
   "model",
@@ -18,24 +18,15 @@ const emit = defineEmits(["update:value"]);
 
 const schemaStore = useSchemaStore();
 
-const localValue = ref(false);
 const localSchema = ref({});
 const localLabel = ref("");
 
 const syncValue = () => {
-  localValue.value = objectPath.get(props.value, props.path);
   localSchema.value = schemaStore.getSchema(props.model, props.path);
-
   localLabel.value = props.path.split(".").slice(-1)[0];
 };
 
-const updateValue = (newValue) => {
-  emit("update:value", (o) => objectPath.set(o, props.path, newValue));
-};
-
-watch(() => [props.value, , props.path, props.model], syncValue, {
-  deep: true,
-});
+watch(() => [props.path, props.model], syncValue);
 
 syncValue();
 </script>
@@ -45,15 +36,28 @@ syncValue();
     <label v-if="!inline && localLabel" class="block uppercase mb-2">{{
       formatLabel(localLabel)
     }}</label>
-    <RCheckbox
-      v-if="edit"
-      class="my-0"
-      :modelValue="localValue"
-      :disabled="disabled"
-      @update:modelValue="updateValue"
-    />
-    <div v-else>
-      {{ localValue }}
-    </div>
+
+    <template v-if="inline">
+      <span class="bg-secondary-400 text-white px-2 py-1 rounded text-xs"
+        >Complex</span
+      >
+    </template>
+
+    <template v-else>
+      <div
+        v-for="(_, name) in localSchema.properties"
+        class="pb-4 pl-4 border-l last:pb-0"
+      >
+        <AutoInput
+          :value="value"
+          :model="model"
+          :path="`${path ? path + '.' : ''}${name}`"
+          :inline="inline"
+          :edit="edit"
+          :disabled="disabled"
+          @update:value="$emit('update:value', $event)"
+        />
+      </div>
+    </template>
   </div>
 </template>

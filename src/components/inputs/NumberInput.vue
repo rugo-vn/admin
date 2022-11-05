@@ -4,9 +4,9 @@ import { ref, watch } from "vue";
 
 import { useSchemaStore } from "../../stores/schema.js";
 import { formatLabel } from "../../utils.js";
-import RCheckbox from "../RCheckbox.vue";
 
 const props = defineProps([
+  "label",
   "value",
   "path",
   "model",
@@ -18,7 +18,7 @@ const emit = defineEmits(["update:value"]);
 
 const schemaStore = useSchemaStore();
 
-const localValue = ref(false);
+const localValue = ref("");
 const localSchema = ref({});
 const localLabel = ref("");
 
@@ -30,7 +30,13 @@ const syncValue = () => {
 };
 
 const updateValue = (newValue) => {
-  emit("update:value", (o) => objectPath.set(o, props.path, newValue));
+  emit("update:value", (o) =>
+    objectPath.set(
+      o,
+      props.path,
+      newValue === "" ? undefined : parseFloat(newValue)
+    )
+  );
 };
 
 watch(() => [props.value, , props.path, props.model], syncValue, {
@@ -45,9 +51,10 @@ syncValue();
     <label v-if="!inline && localLabel" class="block uppercase mb-2">{{
       formatLabel(localLabel)
     }}</label>
-    <RCheckbox
+    <RInput
       v-if="edit"
       class="my-0"
+      type="number"
       :modelValue="localValue"
       :disabled="disabled"
       @update:modelValue="updateValue"

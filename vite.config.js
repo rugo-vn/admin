@@ -1,27 +1,28 @@
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
-import svgLoader from 'vite-svg-loader';
+import { fileURLToPath, URL } from "node:url";
 
-const base = process.env.BASE || ''
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
 
-// https://vitejs.dev/config/
+const base = process.env.ADMIN_BASE || "";
+
 export default defineConfig({
-  envPrefix: 'ADMIN_',
+  envPrefix: "ADMIN_",
+
   base: `/${base}`,
-  
+
   server: {
-    port: 8080
+    port: 8080,
   },
 
-  build: {
-    outDir: `dist/${base}`
-  },
-
-  plugins: [vue(), svgLoader()],
+  plugins: [vue()],
 
   resolve: {
-    dedupe: [
-      'vue'
-    ]
-  }
-})
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+  test: {
+    globals: true,
+    environment: "jsdom",
+  },
+});

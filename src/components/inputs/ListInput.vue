@@ -1,73 +1,116 @@
 <script setup>
-import { reactive } from 'vue';
-import uniqid from "uniqid";
-import * as Inputs from './index.js';
-import { MButton } from '../../../lib';
+import objectPath from "object-path";
+import { ref, watch } from "vue";
+import AddIcon from "@rugo-vn/vue/dist/ionicons/AddIcon.vue";
+import TrashIcon from "@rugo-vn/vue/dist/ionicons/TrashIcon.vue";
 
-const props = defineProps(['label', 'modelValue', 'schema']);
-const emit = defineEmits(['update:modelValue']);
+import { useSchemaStore } from "../../stores/schema.js";
+import { formatLabel } from "../../utils.js";
+import AutoInput from "./AutoInput.vue";
 
-const items = reactive([]);
+const props = defineProps([
+  "label",
+  "value",
+  "path",
+  "model",
+  "inline",
+  "edit",
+  "disabled",
+]);
+const emit = defineEmits(["update:value"]);
 
-const addItem = (value = null) => {
-  items.push({
-    id: uniqid(),
-    value
-  });
-}
+const schemaStore = useSchemaStore();
 
-const removeItem = (item) => {
-  items.splice(items.indexOf(item), 1);
-}
+const localValue = ref([]);
+const localSchema = ref({});
 
-const getView = type => {
-  const viewName = type[0].toUpperCase() + type.substring(1).toLowerCase() + 'Input';
-  
-  if (Inputs[viewName])
-    return Inputs[viewName];
+const localLabel = ref("");
 
-  return null;
-}
+const syncValue = () => {
+  localValue.value = objectPath.get(props.value, props.path) || [];
+  localSchema.value = schemaStore.getSchema(props.model, props.path);
 
-const updateChange = () => {
-  const result = items.map(item => item.value).filter(i => i !== null);
-  emit('update:modelValue', result.length ? result : null);
-}
+  localLabel.value = props.path.split(".").slice(-1)[0];
+};
 
-const initValue = () => {
-  while (items.length)
-    items.splice(0, 1);
+const addItem = () => {
+  emit("update:value", (o) => objectPath.push(o, props.path, null));
+};
 
-  for (let value of props.modelValue || []){
-    addItem(value);
-  }
-}
+const removeItem = (index) => {
+  emit("update:value", (o) => objectPath.del(o, `${props.path}.${index}`));
+};
 
-initValue();
+watch(() => [props.value, props.path, props.model], syncValue, { deep: true });
+
+syncValue();
 </script>
 
 <template>
-  <div
-    v-for="item in items"
-    :key="item.id"
-    class="flex justify-between my-2 bg-[rgba(0,0,0,.05)] p-2 rounded-lg"
-  >
-    <component
-      class="w-full"
-      :is="schema.children ? (getView(schema.children.type) || Inputs.TextInput) : Inputs.TextInput"
-      :schema="schema.children || { editor: 'code' }"
-      v-model="item.value"
-      @update:modelValue="updateChange"
-    />
-
-    <div class="ml-2">
-      <MButton variant="danger" class="px-1 py-1" @click="removeItem(item)">
-        <ion-icon class="text-[1.3em]" name="close" />
-      </MButton>
+  <div class="list-input">
+    <div
+      class="list-input-label flex justify-between mb-2 items-center"
+      v-if="!inline"
+    >
+      <label v-if="localLabel" class="uppercase mb-0">{{
+        formatLabel(localLabel)
+      }}</label>
+      <RButton
+        v-if="edit"
+        class="px-1 py-1"
+        variant="primary rounded"
+        @click="addItem"
+      >
+        <AddIcon />
+      </RButton>
     </div>
-  </div>
 
-  <MButton variant="primary" class="px-1 py-1" @click="addItem()">
-    <ion-icon class="text-[1.3em]" name="add" />
-  </MButton>
+    <div
+      v-if="localValue.length === 0"
+      class="border p-1 rounded text-center italic text-gray-500"
+    >
+      Empty
+    </div>
+
+    <template v-if="inline">
+      <span class="bg-secondary-400 text-white px-2 py-1 rounded text-xs"
+        >Complex</span
+      >
+    </template>
+
+    <template v-else>
+      <div
+        v-for="(_, index) in localValue"
+        :key="index"
+        class="list-input-values pb-4 pl-4 border-l relative last:pb-0"
+      >
+        <RButton
+          v-if="edit"
+          class="absolute left-[-.7rem] w-[1.4rem] h-[1.3rem] px-0 py-0 rounded text-xs text-center justify-center"
+          variant="danger"
+          @click="removeItem(index)"
+        >
+          <TrashIcon />
+        </RButton>
+        <div>
+          <AutoInput
+            class="list-input-value"
+            :value="value"
+            :model="model"
+            :path="`${path ? path + '.' : ''}${index}`"
+            :inline="inline"
+            :edit="edit"
+            :disabled="disabled"
+            @update:value="$emit('update:value', $event)"
+          />
+        </div>
+      </div>
+    </template>
+  </div>
 </template>
+
+<style lang="scss">
+.list-input-value > label:first-of-type {
+  display: none;
+}
+</style>

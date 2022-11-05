@@ -1,15 +1,11 @@
-<script setup>
-import { RouterView } from "vue-router";
-import { MAuthLayout } from '../../lib';
-import AppLogo from "../components/AppLogo.vue";
-</script>
-
 <template>
-  <MAuthLayout>
-    <template #logo>
-      <AppLogo size="lg"/>
-    </template>
-
-    <RouterView />
-  </MAuthLayout>
+  <RCentralLayout>
+    <div class="width-full max-w-2xl">
+      <div
+        class="p-6 rounded border bg-white border-gray-100 mt-12 dark:bg-gray-900 dark:border-gray-800"
+      >
+        <RouterView />
+      </div>
+    </div>
+  </RCentralLayout>
 </template>

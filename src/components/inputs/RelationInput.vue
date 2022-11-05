@@ -1,92 +1,172 @@
 <script setup>
-import { inject, onMounted, reactive, ref, watch } from "vue";
-import { MDropdown, MList, MListItem, MInput } from "../../../lib";
+import objectPath from "object-path";
+import { ref, watch } from "vue";
 
-const props = defineProps(['modelValue', 'schema']);
-const emit = defineEmits(['update:modelValue']);
+import CloseIcon from "@rugo-vn/vue/dist/ionicons/CloseIcon.vue";
 
-const noti = inject('mnoti');
-const model = inject('model');
+import { useSchemaStore } from "../../stores/schema.js";
+import { useApiStore } from "../../stores/api.js";
+import { formatLabel } from "../../utils.js";
+import { DELAY_SEARCH } from "../../constants.js";
 
-// load data
-const relation = reactive({
-  data: []
-});
+const props = defineProps([
+  "label",
+  "value",
+  "path",
+  "model",
+  "inline",
+  "edit",
+  "disabled",
+]);
+const emit = defineEmits(["update:value"]);
 
-const localValue = ref(null);
+const schemaStore = useSchemaStore();
+const apiStore = useApiStore();
 
-const syncLocalValue = () => {
-  for(let item of relation.data)
-    if (item._id === props.modelValue)
-      return localValue.value = item[props.schema.str];
+const isLoading = ref(false);
+const localValue = ref("");
+const localSchema = ref({});
+const localLabel = ref("");
+const results = ref([]);
+const localItem = ref(null);
 
-  localValue.value = null;
-}
+let firstField = "_id";
+let refSchema = null;
 
-const loadData = async () => {
-  let result;
-  try {
-    result = await model(props.schema.ref).list({ $limit: -1 });
-  } catch(err) {
-    return noti.push('danger', err.message);
+const syncValue = async () => {
+  localValue.value = objectPath.get(props.value, props.path);
+  localSchema.value = schemaStore.getSchema(props.model, props.path);
+  localLabel.value = props.path.split(".").slice(-1)[0];
+
+  if (localSchema.value.ref) {
+    refSchema = schemaStore.getSchema(localSchema.value.ref);
+    firstField = Object.keys(refSchema.properties || {})[0] || "_id";
   }
-  
-  relation.data = result.data;
-  syncLocalValue();
-}
 
-onMounted(() => {
-  loadData();
-});
+  if (
+    localValue.value &&
+    refSchema &&
+    !(localItem.value && localItem.value._id === localValue.value)
+  ) {
+    const { data: item } = await apiStore.get(
+      refSchema._name,
+      localValue.value
+    );
+    localItem.value = item;
+  }
+};
 
-// data manipulation
-const validate = () => {
-  for (let item of relation.data)
-    if (item[props.schema.str] === localValue.value)
-      return emit('update:modelValue', item._id);
+const updateValue = (newValue) => {
+  emit("update:value", (o) =>
+    objectPath.set(o, props.path, newValue || undefined)
+  );
+};
 
-  emit('update:modelValue', null);
-  localValue.value = null;
-}
+let searchTimeout;
+const search = async (text) => {
+  clearTimeout(searchTimeout);
 
-watch(() => props.modelValue, syncLocalValue);
+  if (!refSchema) {
+    isLoading.value = false;
+    return;
+  }
 
+  isLoading.value = true;
+  const { data } = await apiStore.find(refSchema._name, {
+    search: text,
+    limit: 5,
+  });
+  isLoading.value = false;
+  results.value = data;
+};
+
+const preSearch = (text) => {
+  isLoading.value = true;
+  results.value = [];
+
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => search(text), DELAY_SEARCH);
+};
+
+const clearSearch = (e) => {
+  e.target.value = "";
+  results.value = [];
+  isLoading.value = false;
+};
+
+const selectValue = (item) => {
+  localItem.value = item;
+  updateValue(item ? item._id : undefined);
+};
+
+watch(() => [props.value, props.path, props.model], syncValue, { deep: true });
+
+syncValue();
 </script>
 
 <template>
-  <MDropdown
-    class="w-[100%!important] block"
-    position="left"
-    :autohide="true"
-  >
-    <template #open="{click}">
-      <div class="relative">
-        <MInput
-          class="my-0"
-          @focus="click"
-          @blur="validate"
-          v-model="localValue"
+  <div>
+    <label v-if="!inline && localLabel" class="block uppercase mb-2">{{
+      formatLabel(localLabel)
+    }}</label>
+    <div v-if="edit">
+      <div v-if="localSchema.ref" class="relative">
+        <input
+          class="block border w-full p-3 rounded-lg peer outline-none focus:border-black dark:bg-gray-900 dark:border-gray-500 dark:focus:border-primary-500 peer"
+          :placeholder="localItem ? '' : `Search something`"
+          :disabled="localItem"
+          @focus="search($event.target.value)"
+          @input="preSearch($event.target.value)"
+          @blur="clearSearch"
+          @keydown.enter="search($event.target.value)"
         />
 
-        <button
-          class="border-2 border-warn-500 text-warn-500 rounded-full w-6 h-6 opacity-50 inline-flex items-center justify-center absolute right-2.5 top-2.5
-          hover:opacity-100"
-          v-if="localValue && !schema.required && !schema.default"
-          @click="emit('update:modelValue', null)"
+        <div
+          class="hidden peer-focus:block bg-white drop-shadow rounded absolute w-[calc(100%-1rem)] top-10 mx-2 z-10"
         >
-          <ion-icon class="text-lg" name="close" />
+          <div
+            v-if="isLoading"
+            class="text-center italic text-gray-500 py-2 px-3"
+          >
+            Searching...
+          </div>
+          <div v-else-if="results.length">
+            <button
+              v-for="item in results"
+              :key="item._id"
+              class="block w-full border-b last:border-none text-left py-2 px-3 hover:bg-gray-50"
+              @mousedown="selectValue(item)"
+            >
+              {{ item[firstField] }}
+            </button>
+          </div>
+          <div v-else class="text-center italic text-gray-500 py-2 px-3">
+            Empty!
+          </div>
+        </div>
+
+        <button
+          v-if="localItem"
+          class="rounded-full bg-primary-500 text-white py-1 px-3 absolute top-2 left-2 inline-flex items-center whitespace-nowrap max-w-[calc(100%-1rem)] overflow-hidden block"
+          @click="selectValue()"
+        >
+          <span class="text-ellipsis overflow-hidden max-w-[calc(100%-1rem)]">
+            {{ localItem[firstField] }}
+          </span>
+          <CloseIcon class="text-base ml-2" />
         </button>
       </div>
-    </template>
 
-    <MList class="w-[100%!important]">
-      <MListItem
-        v-for="item in relation.data"
-        :key="item._id"
-        @click="$emit('update:modelValue', item._id)"
-      >
-        {{ item[schema.str] }}
-      </MListItem>
-    </MList>
-  </MDropdown>
+      <RInput
+        v-else
+        class="my-0"
+        :modelValue="localValue"
+        :disabled="disabled"
+        @update:modelValue="updateValue"
+      />
+    </div>
+    <div v-else>
+      {{ localItem ? localItem[firstField] : localValue }}
+    </div>
+  </div>
 </template>

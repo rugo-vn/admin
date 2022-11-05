@@ -1,74 +1,87 @@
 <script setup>
-import { inject, onBeforeMount, reactive, watch } from 'vue';
-import { useRoute, useRouter, RouterView } from "vue-router";
+import { reactive, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 
-import { MDashboardLayout } from '../../lib';
-import { useInfoStore } from '../stores/info';
-import AppLogo from '../components/AppLogo.vue';
-import { formatName } from '../utils';
+import MenuIcon from "@rugo-vn/vue/dist/ionicons/MenuIcon.vue";
+import SettingsIcon from "@rugo-vn/vue/dist/ionicons/SettingsIcon.vue";
 
-const api = inject('api');
-const noti = inject('mnoti');
+import { VIEW } from "../constants.js";
+import { useAppStore } from "../stores/app.js";
+import { useApiStore } from "../stores/api.js";
+import { useSchemaStore } from "../stores/schema.js";
+import { formatLabel } from "../utils.js";
+import RSideNav from "../components/RSideNav.vue";
+
 const router = useRouter();
-const route = useRoute();
-const infoStore = useInfoStore();
+const appStore = useAppStore();
+const apiStore = useApiStore();
+const schemaStore = useSchemaStore();
 
-const navigations = reactive([
-  { type: "link", name: "Home", href: "/dashboard", icon: "home" },
-]);
+const navControl = ref(false);
+const navigations = reactive([]);
+const isLoad = ref(false);
 
-const updateCollectionRoute = async name => {
-  const formatedName = name ? formatName(name) : null;
-
-  for (let item of navigations){
-    if (item.name === formatedName)
-      item.active = true;
-    else
-      item.active = false;
+const handleAction = (type) => {
+  if (type === "left") {
+    navControl.value = !navControl.value;
   }
-}
+};
 
-onBeforeMount(async () => {
-  if (!api.token){
-    noti.push('warn', 'You must sign in first!');
-    return router.push('/signin');
+const loadData = async () => {
+  isLoad.value = false;
+
+  const data = await apiStore.getInfo();
+
+  if (!data) return router.push(VIEW.SignInView);
+
+  const { schemas } = data;
+  schemaStore.setSchemas(schemas);
+
+  navigations.push(
+    ...[
+      { type: "label", name: "Dashboard" },
+      { name: "Overview", href: VIEW.OverviewView, icon: "home" },
+      { type: "label", name: "Models" },
+      ...schemas.map((schema) => ({
+        name: formatLabel(schema._name),
+        href: `/dashboard/models/${schema._name}`,
+        icon: schema._icon,
+      })),
+      { type: "label", name: "Account" },
+      { name: "Change Password", icon: "lock-closed" },
+      { name: "Sign out", href: VIEW.SignInView, icon: "log-out" },
+    ]
+  );
+
+  changeView();
+  isLoad.value = true;
+};
+
+const changeView = () => {
+  for (let item of navigations) {
+    if (item.name === appStore.view) item.active = true;
+    else item.active = false;
   }
+};
 
-  try {
-    infoStore.setInfo(await api.getInfo());
-  } catch(err){
-    noti.push('warn', 'Your session was expired. Please sign in again!');
-    return router.push('/signin');
-  }
+watch(() => appStore.view, changeView);
 
-  navigations.push(...[
-    { type: 'label', name: 'Collections' },
-    ...infoStore.info.map(schema => ({
-      type: 'link', 
-      name: formatName(schema.__name), 
-      href: `/dashboard/${schema.__type}/${schema.__name}`, 
-      icon: schema.__icon || 'file-tray', 
-      active: false
-    })),
-    { type: 'label', name: 'Actions' },
-    { type: "link", name: "Sign out", href: "/signout", icon: "log-out" },
-  ]);
-
-  updateCollectionRoute(route.params.collectionName);
-});
-
-watch(
-  () => route.params.collectionName,
-  updateCollectionRoute
-);
+loadData();
 </script>
 
 <template>
-  <MDashboardLayout :items="navigations">
-    <template #logo>
-      <AppLogo :responsive="true" />
-    </template>
+  <div class="flex">
+    <RSideNav :items="navigations" v-model="navControl" />
 
-    <RouterView />
-  </MDashboardLayout>
+    <div class="flex-1">
+      <RTopBar
+        @action="handleAction"
+        :leftIcon="MenuIcon"
+        :rightIcon="SettingsIcon"
+      />
+      <div class="p-4" v-if="isLoad">
+        <RouterView />
+      </div>
+    </div>
+  </div>
 </template>

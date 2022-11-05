@@ -1,138 +1,59 @@
 <script setup>
-import { computed, inject, nextTick, ref } from "vue";
-import { PrismEditor } from 'vue-prism-editor';
-import { MInput, MRichEditor, MDropdown, MList, MListItem, MDialog } from "../../../lib";
-import UploadInput from "./UploadInput.vue";
+import objectPath from "object-path";
+import { ref, watch } from "vue";
 
-import 'vue-prism-editor/dist/prismeditor.min.css';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-json';
-import 'prismjs/themes/prism.css';
+import { useSchemaStore } from "../../stores/schema.js";
+import { formatLabel } from "../../utils.js";
 
-const props = defineProps(['label', 'modelValue', 'schema']);
-defineEmits(['update:modelValue']);
+const props = defineProps([
+  "label",
+  "value",
+  "path",
+  "model",
+  "inline",
+  "edit",
+  "disabled",
+]);
+const emit = defineEmits(["update:value"]);
 
-const noti = inject('mnoti');
-const dialog = ref(null);
-let quill;
+const schemaStore = useSchemaStore();
 
-const prepareInsertion = q => {
-  quill = q;
+const localValue = ref("");
+const localSchema = ref({});
+const localLabel = ref("");
 
-  if (!props.schema.upload)
-    return noti.push('warn', 'Do not have upload config!');
+const syncValue = () => {
+  localValue.value = objectPath.get(props.value, props.path);
+  localSchema.value = schemaStore.getSchema(props.model, props.path);
 
-  dialog.value.show();
-}
-
-const insertImage = filePath => {
-  const baseURL = import.meta.env.ADMIN_API_BASE_URL;
-  dialog.value.hide();
-  
-  quill.focus();
-  nextTick(() => {
-    const selection = quill.getSelection();
-    quill.insertEmbed(selection ? selection.index : 0, 'image', `${baseURL}${filePath}`);
-  });
-}
-
-const valueLength = computed(() => (props.modelValue ? props.modelValue.length : 0) + (props.schema.maxlength !== undefined ? `/${props.schema.maxlength}` : ''));
-
-const highlighter = (code) => {
-  return highlight(code, languages.json);
+  localLabel.value = props.path.split(".").slice(-1)[0];
 };
+
+const updateValue = (newValue) => {
+  emit("update:value", (o) =>
+    objectPath.set(o, props.path, newValue || undefined)
+  );
+};
+
+watch(() => [props.value, props.path, props.model], syncValue, { deep: true });
+
+syncValue();
 </script>
 
 <template>
-  <div v-if="schema.editor === 'rich'" class="text-input">
-    <MRichEditor
-      :modelValue="modelValue"
-      @update:modelValue="event => $emit('update:modelValue', event)"
-      @insertImage="prepareInsertion"
-    />
-
-    <MDialog :label="false" ref="dialog">
-      <UploadInput
-        :schema="schema.upload"
-        :hideInput="true"
-        @update:modelValue="insertImage"
-      />
-    </MDialog>
-  </div>
-
-  <PrismEditor
-    v-else-if="schema.editor === 'code'"
-    :highlight="highlighter"
-    :modelValue="modelValue"
-    @update:modelValue="event => $emit('update:modelValue', event)"
-  />
-
-  <MDropdown
-    v-else-if="schema.choice"
-    class="w-[100%!important] block"
-    position="left"
-    :autohide="true"
-  >
-    <template #open="{click}">
-      <div class="relative">
-        <MInput
-          class="my-0"
-          @click="click"
-          :disabled="true"
-          :modelValue="modelValue"
-        />
-
-        <button
-          class="border-2 border-warn-500 text-warn-500 rounded-full w-6 h-6 opacity-50 inline-flex items-center justify-center absolute right-9 top-2.5
-          hover:opacity-100"
-          v-if="modelValue && !schema.required && !schema.default"
-          @click="$emit('update:modelValue', null)"
-        >
-          <ion-icon class="text-lg" name="close" />
-        </button>
-
-        <ion-icon @click="click" class="text-lg absolute right-2.5 top-3.5 text-gray-500" name="chevron-down" />
-      </div>
-    </template>
-
-    <MList class="w-[100%!important]">
-      <MListItem
-        v-for="item in schema.choice"
-        :key="item"
-        @click="$emit('update:modelValue', item)"
-      >
-        {{ item }}
-      </MListItem>
-    </MList>
-  </MDropdown>
-  
-  <div v-else class="relative">
-    <MInput
+  <div>
+    <label v-if="!inline && localLabel" class="block uppercase mb-2">{{
+      formatLabel(localLabel)
+    }}</label>
+    <RInput
+      v-if="edit"
       class="my-0"
-      :modelValue="modelValue"
-      @update:modelValue="event => $emit('update:modelValue', event)"
+      :modelValue="localValue"
+      :disabled="disabled"
+      @update:modelValue="updateValue"
     />
-
-    <div class="absolute bottom-[-1.25em] right-2 text-[.8em] bg-white p-1 text-gray-400">{{ valueLength }}</div>
+    <div v-else>
+      {{ localValue }}
+    </div>
   </div>
 </template>
-
-<style lang="scss">
-.text-input {
-  .m-dialog .m-content-dialog {
-    @apply max-w-2xl;
-  }
-}
-
-.prism-editor-wrapper {
-  @apply bg-white block border w-full p-3 rounded-lg outline-none focus:border-black dark:bg-gray-900 dark:border-gray-500 dark:focus:border-primary-500;
-
-  font-family: monospace;
-  
-  .prism-editor__textarea {
-    &:focus-visible {
-      outline: none;
-    }
-  }
-}
-</style>
