@@ -28,6 +28,7 @@ const view = computed(() => {
       break;
 
     case "string":
+    case "text":
       input = Inputs.TextInput;
       break;
 
