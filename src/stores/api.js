@@ -165,7 +165,29 @@ export const useApiStore = defineStore("api", {
 
       return this.handleResponse(res);
     },
-    update() {},
+
+    async update(model, id, form) {
+      delete form._id;
+
+      const set = {};
+      const unset = {};
+
+      for (let key in form){
+        if (form[key] === undefined) {
+          unset[key] = true;
+        } else {
+          set[key] = form[key];
+        }
+      }
+
+      const http = this.createHttp();
+
+      this.startLoad();
+      const res = await http.patch(API.base + model + `/${id}`, { set, unset });
+      this.endLoad();
+
+      return this.handleResponse(res);
+    },
 
     async remove(model, id) {
       const http = this.createHttp();

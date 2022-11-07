@@ -18,12 +18,6 @@ const selectionStore = useSelectionStore();
 
 const dataForm = ref(null);
 const dataExplorer = ref(null);
-const dataFormMode = ref("create");
-
-const openDataForm = (mode) => {
-  dataFormMode.value = mode;
-  dataForm.value.show();
-};
 
 const updateDataForm = () => {
   dataForm.value.hide();
@@ -80,7 +74,7 @@ syncValue();
   <div class="table-data">
     <RDialog :label="false" ref="dataForm">
       <DataForm
-        :mode="dataFormMode"
+        mode="create"
         :model="model"
         @update:value="updateDataForm"
       />
@@ -90,7 +84,7 @@ syncValue();
       <RButton
         variant="primary"
         class="justify-center w-8 h-8 px-0 py-0 mr-2"
-        @click="openDataForm('create')"
+        @click="dataForm.show()"
       >
         <CreateIcon class="text-lg" />
       </RButton>

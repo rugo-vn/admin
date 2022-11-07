@@ -9,6 +9,9 @@ import { formatLabel } from "../../utils.js";
 import RCheckbox from "../RCheckbox.vue";
 import AutoInput from "../inputs/AutoInput.vue";
 import { useApiStore } from "../../stores/api.js";
+import DropDown from "../DropDown.vue";
+import RDialog from "../RDialog.vue";
+import DataForm from "./DataForm.vue";
 
 const props = defineProps(["model"]);
 
@@ -20,6 +23,9 @@ const data = ref([]);
 const localLables = ref([]);
 const localSchema = ref({});
 const dataTable = ref(null);
+const dataFormId = ref(null);
+const dataForm = ref(null);
+const dataFormMode = ref('view');
 
 const syncValue = async () => {
   localSchema.value = schemaStore.getSchema(props.model, "");
@@ -68,6 +74,27 @@ const isSelected = (id) => {
   return selectionStore.selected.indexOf(id) !== -1;
 };
 
+const handleAction = (name, item) => {
+  switch (name) {
+    case 'view':
+      dataFormId.value = item._id;
+      dataFormMode.value = 'view';
+      dataForm.value.show();
+      break;
+
+    case 'edit':
+      dataFormId.value = item._id;
+      dataFormMode.value = 'edit';
+      dataForm.value.show();
+      break;
+  }
+}
+
+const updateDataForm = () => {
+  dataForm.value.hide();
+  syncValue();
+};
+
 watch(() => [props.model], syncValue);
 
 const dataTableResize = () => {
@@ -90,6 +117,15 @@ syncValue();
 
 <template>
   <div class="data-table" ref="dataTable">
+    <RDialog :label="false" ref="dataForm">
+      <DataForm
+        :id="dataFormId"
+        :mode="dataFormMode"
+        :model="model"
+        @update:value="updateDataForm"
+      />
+    </RDialog>
+
     <table class="m-table table-fixed w-full">
       <thead class="bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
         <th
@@ -107,6 +143,9 @@ syncValue();
           <div v-else>
             {{ formatLabel(label) }}
           </div>
+        </th>
+
+        <th class="head-_tool font-normal text-xs text-left uppercase">
         </th>
       </thead>
 
@@ -137,6 +176,13 @@ syncValue();
               />
             </slot>
           </td>
+
+          <td class="cell-_tool">
+            <DropDown
+              :actions="['view', 'edit']"
+              @do:action="handleAction($event, row)"
+            />
+          </td>
         </tr>
       </tbody>
     </table>
@@ -151,6 +197,11 @@ syncValue();
 
   .cell-_id {
     width: 0;
+  }
+
+  .head-_tool,
+  .cell-_tool {
+    width: 1.75rem;
   }
 }
 </style>
