@@ -10,7 +10,7 @@ import { FsId } from "../../utils.js";
 import RBreadcrumb from "../RBreadcrumb.vue";
 import { join } from "path-browserify";
 
-const props = defineProps(["model", "parent"]);
+const props = defineProps(['mode', "model", "parent"]);
 const emit = defineEmits(["update:parent", "update:value"]);
 
 const selectionStore = useSelectionStore();
@@ -37,7 +37,9 @@ const addresses = computed(() => {
 });
 
 const syncValue = async () => {
-  localParent.value = props.parent;
+  if (props.parent)
+    localParent.value = props.parent;
+
   selectionStore.clear();
 
   const { data: result } = await apiStore.find(props.model, {
@@ -103,7 +105,7 @@ syncValue();
 
     <table class="m-table table-fixed w-full">
       <thead class="bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
-        <th class="py-2 px-4 font-normal text-xs text-left uppercase w-0">
+        <th class="py-2 px-4 font-normal text-xs text-left uppercase w-0" v-if="mode !== 'single'">
           <RCheckbox
             :indeterminate="selectionStore.isAnySelected(data.length)"
             :modelValue="selectionStore.isAllSelected(data.length)"
@@ -124,7 +126,7 @@ syncValue();
           v-for="item in data"
           :key="item._id"
         >
-          <td class="py-2 px-4 break-words">
+          <td class="py-2 px-4 break-words" v-if="mode !== 'single'">
             <RCheckbox
               class="block h-full flex"
               type="checkbox"

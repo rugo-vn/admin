@@ -40,6 +40,8 @@ export const useSchemaStore = defineStore("schema", {
           schemaPath += `.properties.${name}`;
         } else if (currentSchema.type === "array") {
           schemaPath += `.items`;
+        } else if (currentSchema.type === "rich") {
+          schemaPath += `.image`;
         } else {
           throw new Error(`Could not find schema for "${schemaPath}.${name}"`);
         }

@@ -76,7 +76,7 @@ const isSelected = (id) => {
 
 const handleAction = (name, item) => {
   switch (name) {
-    case 'view':
+    case 'details':
       dataFormId.value = item._id;
       dataFormMode.value = 'view';
       dataForm.value.show();
@@ -179,7 +179,7 @@ syncValue();
 
           <td class="cell-_tool">
             <DropDown
-              :actions="['view', 'edit']"
+              :actions="['edit', 'details']"
               @do:action="handleAction($event, row)"
             />
           </td>

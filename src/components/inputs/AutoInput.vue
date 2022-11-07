@@ -51,6 +51,10 @@ const view = computed(() => {
     case "file":
       input = Inputs.FileInput;
       break;
+
+    case 'rich':
+      input = Inputs.RichInput;
+      break;
   }
 
   return input;

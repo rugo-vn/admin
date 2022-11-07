@@ -91,6 +91,13 @@ onUnmounted(() => {
 });
 
 watch(() => [props.value, props.path, props.model], syncValue, { deep: true });
+
+defineExpose({
+  show(){ isFocus.value = true; },
+  hide(){ isFocus.value = false; },
+  isFocus(){ return isFocus.value; },
+});
+
 syncValue();
 </script>
 
@@ -123,6 +130,7 @@ syncValue();
           <FileExplorer
             ref="fileExplorer"
             class="mt-1 mb-[-1px]"
+            mode="single"
             :model="refSchema._name"
             :parent="parent"
             @update:parent="updateParent"

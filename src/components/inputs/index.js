@@ -5,3 +5,4 @@ export { default as ListInput } from "./ListInput.vue";
 export { default as ObjectInput } from "./ObjectInput.vue";
 export { default as RelationInput } from "./RelationInput.vue";
 export { default as FileInput } from "./FileInput.vue";
+export { default as RichInput } from "./RichInput.vue";
