@@ -55,6 +55,10 @@ const view = computed(() => {
     case 'rich':
       input = Inputs.RichInput;
       break;
+
+    case 'json':
+      input = Inputs.JsonInput;
+      break;
   }
 
   return input;
