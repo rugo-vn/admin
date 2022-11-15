@@ -16,7 +16,6 @@ const schemaStore = useSchemaStore();
 const DATA_SELECTION = {
   mem: TableData,
   mongo: TableData,
-  caddy: TableData,
   fs: TreeData,
 };
 
