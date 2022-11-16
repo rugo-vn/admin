@@ -198,5 +198,15 @@ export const useApiStore = defineStore("api", {
 
       return this.handleResponse(res);
     },
+
+    async x(action, model, id) {
+      const http = this.createHttp();
+
+      this.startLoad();
+      const res = await http.get(API.basex + `${action}/` + model + `/${id}`);
+      this.endLoad();
+
+      return this.handleResponse(res);
+    }
   },
 });

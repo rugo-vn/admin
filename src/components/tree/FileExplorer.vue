@@ -9,6 +9,7 @@ import RCheckbox from "../RCheckbox.vue";
 import { FsId } from "../../utils.js";
 import RBreadcrumb from "../RBreadcrumb.vue";
 import { join } from "path-browserify";
+import DropDown from "../DropDown.vue";
 
 const props = defineProps(['mode', "model", "parent"]);
 const emit = defineEmits(["update:parent", "update:value"]);
@@ -89,6 +90,19 @@ const updateParent = (value) => {
   emit("update:parent", value);
 };
 
+const handleAction = async (name, item) => {
+  switch (name) {
+    default:
+      const res = await apiStore.x(name, props.model, item._id);
+      apiStore.pushNotice({
+        type: "primary",
+        title: `${name}`,
+        detail: res.data,
+      });
+      syncValue();
+  }
+}
+
 watch(() => [props.model, props.parent], syncValue);
 
 defineExpose({ sync: syncValue });
@@ -117,6 +131,9 @@ syncValue();
           class="py-2 px-4 font-normal text-xs text-left uppercase w-32 text-right hidden md:table-cell"
         >
           Mime
+        </th>
+
+        <th class="w-[1.75rem]" v-if="mode !== 'single'">
         </th>
       </thead>
 
@@ -162,6 +179,16 @@ syncValue();
             class="py-2 px-4 text-xs text-gray-500 w-32 text-right hidden md:table-cell"
           >
             {{ item.mime }}
+          </td>
+
+          <td class="w-[1.75rem]" v-if="mode !== 'single'">
+            <DropDown
+              :actions="[
+                'compress',
+                ...(item.mime === 'application/zip' ? ['extract'] : [])
+              ]"
+              @do:action="handleAction($event, item)"
+            />
           </td>
         </tr>
       </tbody>
