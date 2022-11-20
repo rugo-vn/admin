@@ -47,6 +47,7 @@ const syncValue = async () => {
     query: {
       parent: FsId.fromPath(localParent.value).toString(),
     },
+    limit: -1,
   });
 
   result.sort((a, b) => {

@@ -38,7 +38,7 @@ syncValue();
 <template>
   <RHeading>{{ appStore.view }}</RHeading>
 
-  <RPanel>
+  <RPanel v-if="localSchema">
     <component
       v-if="DATA_SELECTION[localSchema._driver]"
       :is="DATA_SELECTION[localSchema._driver]"
