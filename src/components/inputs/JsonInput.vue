@@ -1,14 +1,14 @@
 <script setup>
 import objectPath from "object-path";
 import { ref, watch } from "vue";
-import { PrismEditor } from 'vue-prism-editor';
+import { PrismEditor } from "vue-prism-editor";
 import { useSchemaStore } from "../../stores/schema.js";
 import { formatLabel } from "../../utils.js";
 
-import 'vue-prism-editor/dist/prismeditor.min.css';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-json';
-import 'prismjs/themes/prism.css';
+import "vue-prism-editor/dist/prismeditor.min.css";
+import { highlight, languages } from "prismjs/components/prism-core";
+import "prismjs/components/prism-json";
+import "prismjs/themes/prism.css";
 
 const props = defineProps([
   "label",
@@ -41,7 +41,7 @@ const syncValue = () => {
 
   if (JSON.stringify(jsonValue) !== JSON.stringify(nextValue)) {
     if (!nextValue) {
-      localValue.value = '';
+      localValue.value = "";
     } else {
       localValue.value = JSON.stringify(nextValue, 0, 2);
     }
@@ -58,21 +58,19 @@ const updateValue = (newValue) => {
     try {
       jsonValue = JSON.parse(newValue);
       isJson.value = true;
-    } catch(_) {
+    } catch (_) {
       isJson.value = false;
     }
-    
-    if (typeof jsonValue !== 'object')
-      isJson.value = false;
+
+    if (typeof jsonValue !== "object") isJson.value = false;
   }
 
-  if (isJson.value === false)
-    return;
+  if (isJson.value === false) return;
 
   emit("update:value", (o) =>
     objectPath.set(o, props.path, jsonValue || undefined)
   );
-}
+};
 
 watch(() => [props.value, props.path, props.model], syncValue, { deep: true });
 
@@ -87,7 +85,9 @@ syncValue();
 
     <div v-if="edit" class="relative">
       <PrismEditor
-        :class="`${isJson === null ? '' : (isJson ? `border-green-500` : `border-red-500`)}`"
+        :class="`${
+          isJson === null ? '' : isJson ? `border-green-500` : `border-red-500`
+        }`"
         :highlight="highlighter"
         :modelValue="localValue"
         @update:modelValue="updateValue($event)"
@@ -101,10 +101,7 @@ syncValue();
       Complex
     </span>
 
-    <div
-      v-else
-      v-html="localValue"
-    />
+    <div v-else v-html="localValue" />
   </div>
 </template>
 
@@ -113,7 +110,7 @@ syncValue();
   @apply bg-white block border w-full p-3 rounded-lg outline-none focus:border-black dark:bg-gray-900 dark:border-gray-500 dark:focus:border-primary-500;
 
   font-family: monospace;
-  
+
   .prism-editor__textarea {
     &:focus-visible {
       outline: none;

@@ -1,44 +1,42 @@
 <script setup>
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
-import { nextTick } from 'process';
-import { ref, watch } from 'vue';
+import { QuillEditor } from "@vueup/vue-quill";
+import "@vueup/vue-quill/dist/vue-quill.snow.css";
+import { nextTick } from "process";
+import { ref, watch } from "vue";
 
-const props = defineProps(['modelValue']);
-const emit = defineEmits(['update:modelValue', 'insertImage']);
+const props = defineProps(["modelValue"]);
+const emit = defineEmits(["update:modelValue", "insertImage"]);
 
 const editor = ref(null);
 
 const editorOptions = {
-  theme: 'snow',
+  theme: "snow",
   modules: {
     toolbar: [
-      ['bold', 'italic', 'underline', 'strike'], 
+      ["bold", "italic", "underline", "strike"],
       [{ header: 1 }, { header: 2 }],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
-      ['image']
-    ]
-  }
-}
-
-const imageHandler = function(){
-  emit('insertImage', this.quill);
+      [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
+      ["image"],
+    ],
+  },
 };
 
-const onEditorReady = function(quill){
+const imageHandler = function () {
+  emit("insertImage", this.quill);
+};
+
+const onEditorReady = function (quill) {
   quill.getModule("toolbar").addHandler("image", imageHandler);
-  quill.root.setAttribute('spellcheck', false);
-}
+  quill.root.setAttribute("spellcheck", false);
+};
 
 const syncValue = () => {
-  if (editor.value.getHTML() !== props.modelValue){
-    editor.value.setHTML(props.modelValue || '');
+  if (editor.value.getHTML() !== props.modelValue) {
+    editor.value.setHTML(props.modelValue || "");
   }
-}
+};
 
-watch(() => [
-  props.modelValue,
-], syncValue);
+watch(() => [props.modelValue], syncValue);
 
 nextTick(() => {
   syncValue();
@@ -52,14 +50,13 @@ nextTick(() => {
       contentType="html"
       :options="editorOptions"
       content=""
-      @update:content="event => $emit('update:modelValue', event)"
+      @update:content="(event) => $emit('update:modelValue', event)"
       @ready="onEditorReady($event)"
     />
   </div>
 </template>
 
 <style lang="scss">
-
 .m-rich-editor {
   .ql-toolbar {
     border-radius: 0.5rem 0.5rem 0 0;
@@ -67,10 +64,10 @@ nextTick(() => {
 
   .ql-container {
     border-radius: 0 0 0.5rem 0.5rem;
-    
+
     .ql-editor {
-      font-family: PoppinsVN, sans-serif;;
-      font-size: .825rem;
+      font-family: PoppinsVN, sans-serif;
+      font-size: 0.825rem;
       min-height: 84px;
       max-height: 500px;
       padding: 0.75rem;
@@ -95,5 +92,4 @@ nextTick(() => {
     }
   }
 }
-
 </style>

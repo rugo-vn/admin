@@ -11,7 +11,7 @@ import RDialog from "../RDialog.vue";
 import DataForm from "./DataForm.vue";
 import { useSelectionStore } from "../../stores/selection.js";
 
-const props = defineProps(["model"]);
+const props = defineProps(["model", "open"]);
 
 const apiStore = useApiStore();
 const selectionStore = useSelectionStore();
@@ -73,11 +73,7 @@ syncValue();
 <template>
   <div class="table-data">
     <RDialog :label="false" ref="dataForm">
-      <DataForm
-        mode="create"
-        :model="model"
-        @update:value="updateDataForm"
-      />
+      <DataForm mode="create" :model="model" @update:value="updateDataForm" />
     </RDialog>
 
     <div class="toolbar mb-4">
@@ -99,7 +95,7 @@ syncValue();
       </RButton>
     </div>
 
-    <DataExplorer ref="dataExplorer" :model="model" />
+    <DataExplorer ref="dataExplorer" :model="model" :open="open" />
   </div>
 </template>
 

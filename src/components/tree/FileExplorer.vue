@@ -11,7 +11,7 @@ import RBreadcrumb from "../RBreadcrumb.vue";
 import { join } from "path-browserify";
 import DropDown from "../DropDown.vue";
 
-const props = defineProps(['mode', "model", "parent"]);
+const props = defineProps(["mode", "model", "parent"]);
 const emit = defineEmits(["update:parent", "update:value"]);
 
 const selectionStore = useSelectionStore();
@@ -38,8 +38,7 @@ const addresses = computed(() => {
 });
 
 const syncValue = async () => {
-  if (props.parent)
-    localParent.value = props.parent;
+  if (props.parent) localParent.value = props.parent;
 
   selectionStore.clear();
 
@@ -102,7 +101,7 @@ const handleAction = async (name, item) => {
       });
       syncValue();
   }
-}
+};
 
 watch(() => [props.model, props.parent], syncValue);
 
@@ -120,7 +119,10 @@ syncValue();
 
     <table class="m-table table-fixed w-full">
       <thead class="bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
-        <th class="py-2 px-4 font-normal text-xs text-left uppercase w-0" v-if="mode !== 'single'">
+        <th
+          class="py-2 px-4 font-normal text-xs text-left uppercase w-0"
+          v-if="mode !== 'single'"
+        >
           <RCheckbox
             :indeterminate="selectionStore.isAnySelected(data.length)"
             :modelValue="selectionStore.isAllSelected(data.length)"
@@ -134,8 +136,7 @@ syncValue();
           Mime
         </th>
 
-        <th class="w-[1.75rem]" v-if="mode !== 'single'">
-        </th>
+        <th class="w-[1.75rem]" v-if="mode !== 'single'"></th>
       </thead>
 
       <tbody>
@@ -186,7 +187,7 @@ syncValue();
             <DropDown
               :actions="[
                 'compress',
-                ...(item.mime === 'application/zip' ? ['extract'] : [])
+                ...(item.mime === 'application/zip' ? ['extract'] : []),
               ]"
               @do:action="handleAction($event, item)"
             />

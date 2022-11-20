@@ -93,9 +93,15 @@ onUnmounted(() => {
 watch(() => [props.value, props.path, props.model], syncValue, { deep: true });
 
 defineExpose({
-  show(){ isFocus.value = true; },
-  hide(){ isFocus.value = false; },
-  isFocus(){ return isFocus.value; },
+  show() {
+    isFocus.value = true;
+  },
+  hide() {
+    isFocus.value = false;
+  },
+  isFocus() {
+    return isFocus.value;
+  },
 });
 
 syncValue();

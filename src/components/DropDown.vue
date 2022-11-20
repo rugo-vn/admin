@@ -1,15 +1,13 @@
 <script setup>
 import EllipsisVerticalIcon from "@rugo-vn/vue/dist/ionicons/EllipsisVerticalIcon.vue";
 
-defineProps(['actions']);
-defineEmits(['do:action']);
+defineProps(["actions"]);
+defineEmits(["do:action"]);
 </script>
 
 <template>
   <div class="relative">
-    <button
-      class="cursor-pointer peer"
-    >
+    <button class="cursor-pointer peer">
       <EllipsisVerticalIcon class="text-base" />
     </button>
 

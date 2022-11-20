@@ -24,21 +24,20 @@ const localLabel = ref("");
 
 const textarea = ref(null);
 const styles = reactive({
-  overflow: 'hidden',
+  overflow: "hidden",
 });
 
 const MIN_TEXT_HEIGHT = 84;
 const MAX_TEXT_HEIGHT = 262;
 
 const resizeTextarea = () => {
-  if (!textarea.value)
-    return;
+  if (!textarea.value) return;
 
   styles.height = `auto !important`;
 
   nextTick(() => {
     const scrollHeight = textarea.value.scrollHeight;
-    styles.overflow = 'hidden';
+    styles.overflow = "hidden";
 
     if (scrollHeight <= MIN_TEXT_HEIGHT) {
       styles.height = `${MIN_TEXT_HEIGHT}px`;
@@ -46,10 +45,10 @@ const resizeTextarea = () => {
       styles.height = `${scrollHeight}px`;
     } else {
       styles.height = `${MAX_TEXT_HEIGHT}px`;
-      styles.overflow = 'auto';
+      styles.overflow = "auto";
     }
   });
-}
+};
 
 const syncValue = () => {
   localValue.value = objectPath.get(props.value, props.path);
@@ -71,7 +70,7 @@ const updateValue = (newValue) => {
 const updateTextareValue = (newValue) => {
   updateValue(newValue);
   resizeTextarea();
-}
+};
 
 watch(() => [props.value, props.path, props.model], syncValue, { deep: true });
 

@@ -14,7 +14,7 @@ const updateDataForm = (set) => set(form);
 
 const clearForm = () => {
   for (let key in form) delete form[key];
-}
+};
 
 const saveForm = async () => {
   if (props.mode === "create") {
@@ -27,7 +27,7 @@ const saveForm = async () => {
     emit("update:value", data);
   }
 
-  if (props.mode === 'edit' && props.id) {
+  if (props.mode === "edit" && props.id) {
     const { data } = await apiStore.update(props.model, props.id, form);
     apiStore.pushNotice({
       type: "success",
@@ -44,16 +44,13 @@ const syncValue = async () => {
   if (props.id) {
     clearForm();
     const { data } = await apiStore.get(props.model, props.id);
-    for (let key in data){
+    for (let key in data) {
       form[key] = data[key];
     }
   }
-}
+};
 
-watch(() => [
-  props.model,
-  props.id,
-], syncValue);
+watch(() => [props.model, props.id], syncValue);
 
 syncValue();
 </script>
@@ -76,6 +73,6 @@ syncValue();
     class="mr-4"
     @click="saveForm"
   >
-    {{ mode === 'create' ? 'Create' : 'Save' }}
+    {{ mode === "create" ? "Create" : "Save" }}
   </RButton>
 </template>

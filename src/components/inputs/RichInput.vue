@@ -38,11 +38,11 @@ const updateValue = (newValue) => {
   emit("update:value", (o) =>
     objectPath.set(o, props.path, newValue || undefined)
   );
-}
+};
 
 let quill;
-const prepareInsertion = q => {
-  if (!localSchema.value.image){
+const prepareInsertion = (q) => {
+  if (!localSchema.value.image) {
     apiStore.pushNotice({
       type: "warn",
       title: "Invalid Config",
@@ -53,27 +53,31 @@ const prepareInsertion = q => {
 
   quill = q;
 
-  if (!uploadForm.value.isFocus()){
+  if (!uploadForm.value.isFocus()) {
     setTimeout(() => {
       uploadForm.value.show();
     }, 0);
   }
-}
+};
 
-const insertImage = set => {
+const insertImage = (set) => {
   const o = {};
   const baseURL = import.meta.env.ADMIN_API;
 
   set(o);
-  
+
   const value = objectPath.get(o, `${props.path}.image`);
 
   quill.focus();
   nextTick(() => {
     const selection = quill.getSelection();
-    quill.insertEmbed(selection ? selection.index : 0, 'image', `${baseURL}${value}`);
+    quill.insertEmbed(
+      selection ? selection.index : 0,
+      "image",
+      `${baseURL}${value}`
+    );
   });
-}
+};
 
 watch(() => [props.value, props.path, props.model], syncValue, { deep: true });
 
@@ -113,17 +117,14 @@ syncValue();
       Complex
     </span>
 
-    <div
-      v-else
-      v-html="localValue"
-    />
+    <div v-else v-html="localValue" />
   </div>
 </template>
 
 <style lang="scss">
 .rich-input-editor {
   .upload-form {
-    >div>div>input {
+    > div > div > input {
       z-index: 0;
       height: 2rem;
       opacity: 0;
@@ -135,5 +136,4 @@ syncValue();
     z-index: 1;
   }
 }
-
 </style>

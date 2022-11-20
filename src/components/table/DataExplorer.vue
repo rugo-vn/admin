@@ -12,12 +12,14 @@ import { useApiStore } from "../../stores/api.js";
 import DropDown from "../DropDown.vue";
 import RDialog from "../RDialog.vue";
 import DataForm from "./DataForm.vue";
+import { useRouter } from "vue-router";
 
-const props = defineProps(["model"]);
+const props = defineProps(["model", "open"]);
 
 const selectionStore = useSelectionStore();
 const schemaStore = useSchemaStore();
 const apiStore = useApiStore();
+const router = useRouter();
 
 const data = ref([]);
 const localLables = ref([]);
@@ -25,7 +27,7 @@ const localSchema = ref({});
 const dataTable = ref(null);
 const dataFormId = ref(null);
 const dataForm = ref(null);
-const dataFormMode = ref('view');
+const dataFormMode = ref("view");
 
 const syncValue = async () => {
   localSchema.value = schemaStore.getSchema(props.model, "");
@@ -76,19 +78,27 @@ const isSelected = (id) => {
 
 const handleAction = (name, item) => {
   switch (name) {
-    case 'details':
+    case "details":
       dataFormId.value = item._id;
-      dataFormMode.value = 'view';
+      dataFormMode.value = "view";
       dataForm.value.show();
       break;
 
-    case 'edit':
+    case "edit":
       dataFormId.value = item._id;
-      dataFormMode.value = 'edit';
+      dataFormMode.value = "edit";
       dataForm.value.show();
       break;
   }
-}
+};
+
+const handleClick = (item) => {
+  if (!props.open || typeof props.open !== "function") {
+    return toggleSelect(item._id, !isSelected(item._id));
+  }
+
+  router.push(props.open(item));
+};
 
 const updateDataForm = () => {
   dataForm.value.hide();
@@ -145,8 +155,7 @@ syncValue();
           </div>
         </th>
 
-        <th class="head-_tool font-normal text-xs text-left uppercase">
-        </th>
+        <th class="head-_tool font-normal text-xs text-left uppercase"></th>
       </thead>
 
       <tbody>
@@ -168,18 +177,24 @@ syncValue();
             />
             <slot v-else name="cell()" v-bind="{ row, label }">
               <AutoInput
+                class="cursor-pointer select-none"
                 :value="row"
                 :model="model"
                 :path="label"
                 :inline="true"
                 :edit="false"
+                @click="handleClick(row)"
               />
             </slot>
           </td>
 
           <td class="cell-_tool">
             <DropDown
-              :actions="['edit', 'details']"
+              :actions="[
+                ...(open && typeof open === 'function' ? ['open'] : []),
+                'edit',
+                'details',
+              ]"
               @do:action="handleAction($event, row)"
             />
           </td>

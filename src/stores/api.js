@@ -172,7 +172,7 @@ export const useApiStore = defineStore("api", {
       const set = {};
       const unset = {};
 
-      for (let key in form){
+      for (let key in form) {
         if (form[key] === undefined) {
           unset[key] = true;
         } else {
@@ -207,6 +207,6 @@ export const useApiStore = defineStore("api", {
       this.endLoad();
 
       return this.handleResponse(res);
-    }
+    },
   },
 });
