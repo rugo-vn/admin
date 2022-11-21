@@ -13,6 +13,7 @@ import DropDown from "../DropDown.vue";
 import RDialog from "../RDialog.vue";
 import DataForm from "./DataForm.vue";
 import { useRouter } from "vue-router";
+import RPagination from "../RPagination.vue";
 
 const props = defineProps(["model", "open"]);
 
@@ -28,6 +29,9 @@ const dataTable = ref(null);
 const dataFormId = ref(null);
 const dataForm = ref(null);
 const dataFormMode = ref("view");
+const total = ref(0);
+const skip = ref(0);
+const limit = ref(0);
 
 const syncValue = async () => {
   localSchema.value = schemaStore.getSchema(props.model, "");
@@ -42,8 +46,14 @@ const syncValue = async () => {
   }
   autoLabel();
 
-  const { data: result } = await apiStore.find(props.model);
+  const { data: result, meta } = await apiStore.find(props.model, {
+    skip: skip.value,
+  });
+
   data.value = result;
+  total.value = meta.total;
+  skip.value = meta.skip;
+  limit.value = meta.limit;
 
   selectionStore.clear();
 };
@@ -102,6 +112,11 @@ const handleClick = (item) => {
 
 const updateDataForm = () => {
   dataForm.value.hide();
+  syncValue();
+};
+
+const updateSkip = (val) => {
+  skip.value = val;
   syncValue();
 };
 
@@ -201,6 +216,14 @@ syncValue();
         </tr>
       </tbody>
     </table>
+
+    <RPagination
+      class="mt-4"
+      :modelValue="skip"
+      :limit="limit"
+      :total="total"
+      @update:modelValue="updateSkip"
+    />
   </div>
 </template>
 
