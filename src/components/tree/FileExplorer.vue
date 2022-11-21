@@ -6,7 +6,7 @@ import { useApiStore } from "../../stores/api.js";
 import { useSelectionStore } from "../../stores/selection.js";
 import { DIRECTORY_MIME } from "../../constants.js";
 import RCheckbox from "../RCheckbox.vue";
-import { FsId } from "../../utils.js";
+import { FsId, download } from "../../utils.js";
 import RBreadcrumb from "../RBreadcrumb.vue";
 import { join } from "path-browserify";
 import DropDown from "../DropDown.vue";
@@ -91,9 +91,15 @@ const updateParent = (value) => {
 };
 
 const handleAction = async (name, item) => {
+  let res;
   switch (name) {
+    case "download":
+      res = await apiStore.download(props.model, item._id);
+      download(res, item.name);
+
+      break;
     default:
-      const res = await apiStore.x(name, props.model, item._id);
+      res = await apiStore.x(name, props.model, item._id);
       apiStore.pushNotice({
         type: "primary",
         title: `${name}`,
@@ -188,6 +194,7 @@ syncValue();
               :actions="[
                 'compress',
                 ...(item.mime === 'application/zip' ? ['extract'] : []),
+                ...(item.mime !== DIRECTORY_MIME ? ['download'] : []),
               ]"
               @do:action="handleAction($event, item)"
             />

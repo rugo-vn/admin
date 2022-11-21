@@ -135,3 +135,17 @@ FsId.prototype[Symbol.for("nodejs.util.inspect.custom")] = function () {
 FsId.prototype.inspect = function () {
   return 'new FsId("'.concat(this.id, '")');
 };
+
+// download
+export const download = (data, filename) => {
+  const href = URL.createObjectURL(data);
+
+  const link = document.createElement("a");
+  link.href = href;
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+
+  document.body.removeChild(link);
+  URL.revokeObjectURL(href);
+};

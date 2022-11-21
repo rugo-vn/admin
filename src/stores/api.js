@@ -208,5 +208,17 @@ export const useApiStore = defineStore("api", {
 
       return this.handleResponse(res);
     },
+
+    async download(model, id) {
+      const http = this.createHttp();
+
+      this.startLoad();
+      const res = await http.get(API.basex + `download/` + model + `/${id}`, {
+        responseType: "blob",
+      });
+      this.endLoad();
+
+      return this.handleResponse(res);
+    },
   },
 });
