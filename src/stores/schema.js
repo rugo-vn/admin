@@ -9,17 +9,7 @@ export const useSchemaStore = defineStore("schema", {
   actions: {
     setSchemas(schemas) {
       for (let schema of schemas) {
-        this.schemas[schema._name] = {
-          ...schema,
-          ...(schema._driver === "fs"
-            ? {
-                properties: {
-                  name: { type: "string" },
-                  mime: { type: "string" },
-                },
-              }
-            : {}),
-        };
+        this.schemas[schema.name] = schema;
       }
     },
 

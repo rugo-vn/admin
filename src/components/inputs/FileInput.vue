@@ -127,7 +127,7 @@ syncValue();
           <div class="p-3">
             <UploadForm
               mode="single"
-              :model="refSchema._name"
+              :model="refSchema.name"
               :parent="parent"
               @update:value="updateItem"
             />
@@ -137,7 +137,7 @@ syncValue();
             ref="fileExplorer"
             class="mt-1 mb-[-1px]"
             mode="single"
-            :model="refSchema._name"
+            :model="refSchema.name"
             :parent="parent"
             @update:parent="updateParent"
             @update:value="updateItem"

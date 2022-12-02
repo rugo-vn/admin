@@ -48,10 +48,7 @@ const syncValue = async () => {
     refSchema &&
     !(localItem.value && localItem.value._id === localValue.value)
   ) {
-    const { data: item } = await apiStore.get(
-      refSchema._name,
-      localValue.value
-    );
+    const { data: item } = await apiStore.get(refSchema.name, localValue.value);
     localItem.value = item;
   }
 };
@@ -72,7 +69,7 @@ const search = async (text) => {
   }
 
   isLoading.value = true;
-  const { data } = await apiStore.find(refSchema._name, {
+  const { data } = await apiStore.find(refSchema.name, {
     search: text,
     limit: 5,
   });

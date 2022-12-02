@@ -43,9 +43,9 @@ const loadData = async () => {
       { name: "Overview", href: VIEW.OverviewView, icon: "home" },
       { type: "label", name: "Models" },
       ...schemas.map((schema) => ({
-        name: formatLabel(schema._name),
-        href: `/dashboard/models/${schema._name}`,
-        icon: schema._icon,
+        name: formatLabel(schema.name),
+        href: `/dashboard/models/${schema.name}`,
+        icon: schema.icon,
       })),
       { type: "label", name: "Account" },
       { name: "Change Password", icon: "lock-closed" },

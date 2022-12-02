@@ -40,13 +40,13 @@ syncValue();
 
   <RPanel v-if="localSchema">
     <component
-      v-if="DATA_SELECTION[localSchema._driver]"
-      :is="DATA_SELECTION[localSchema._driver]"
+      v-if="DATA_SELECTION[localSchema.driver]"
+      :is="DATA_SELECTION[localSchema.driver]"
       :model="model"
     />
 
     <div v-else class="text-center italic">
-      Cannot find data displayer for {{ localSchema._driver }} driver.
+      Cannot find data displayer for {{ localSchema.driver }} driver.
     </div>
   </RPanel>
 </template>

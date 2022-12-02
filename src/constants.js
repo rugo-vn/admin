@@ -15,7 +15,7 @@ export const SELECT_MODE = {
 
 export const API = {
   base: "/api/",
-  basex: "/apix/",
+  data: "/api/data/",
   signIn: "/api/login",
   signUp: "/api/register",
   info: "/api/info",

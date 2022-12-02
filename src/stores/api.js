@@ -138,7 +138,7 @@ export const useApiStore = defineStore("api", {
       const http = this.createHttp();
 
       this.startLoad();
-      const res = await http.get(API.base + model + `/${id}`);
+      const res = await http.get(API.data + model + `/${id}`);
       this.endLoad();
 
       return this.handleResponse(res);
@@ -148,7 +148,7 @@ export const useApiStore = defineStore("api", {
       const http = this.createHttp();
 
       this.startLoad();
-      const res = await http.post(API.base + model, form);
+      const res = await http.post(API.data + model, form);
       this.endLoad();
 
       return this.handleResponse(res);
@@ -159,7 +159,7 @@ export const useApiStore = defineStore("api", {
 
       this.startLoad();
       const res = await http.get(
-        API.base + model + (query ? `?${qs.stringify(query)}` : "")
+        API.data + model + (query ? `?${qs.stringify(query)}` : "")
       );
       this.endLoad();
 
@@ -183,7 +183,7 @@ export const useApiStore = defineStore("api", {
       const http = this.createHttp();
 
       this.startLoad();
-      const res = await http.patch(API.base + model + `/${id}`, { set, unset });
+      const res = await http.patch(API.data + model + `/${id}`, { set, unset });
       this.endLoad();
 
       return this.handleResponse(res);
@@ -193,7 +193,7 @@ export const useApiStore = defineStore("api", {
       const http = this.createHttp();
 
       this.startLoad();
-      const res = await http.delete(API.base + model + `/${id}`);
+      const res = await http.delete(API.data + model + `/${id}`);
       this.endLoad();
 
       return this.handleResponse(res);
@@ -203,7 +203,7 @@ export const useApiStore = defineStore("api", {
       const http = this.createHttp();
 
       this.startLoad();
-      const res = await http.get(API.basex + `${action}/` + model + `/${id}`);
+      const res = await http.get(API.base + `${action}/` + model + `/${id}`);
       this.endLoad();
 
       return this.handleResponse(res);
@@ -213,7 +213,7 @@ export const useApiStore = defineStore("api", {
       const http = this.createHttp();
 
       this.startLoad();
-      const res = await http.get(API.basex + `download/` + model + `/${id}`, {
+      const res = await http.get(API.base + `download/` + model + `/${id}`, {
         responseType: "blob",
       });
       this.endLoad();
