@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "vite": "vite",
-    "dev": "ADMIN_API=http://localhost:3000 vite",
+    "dev": "ADMIN_API=http://localhost vite",
     "build": "ADMIN_BASE=admin ADMIN_API=/ vite build",
     "preview": "vite preview --port 4173",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",

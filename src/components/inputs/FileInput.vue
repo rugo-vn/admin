@@ -1,6 +1,7 @@
 <script setup>
 import objectPath from "object-path";
 import { onMounted, onUnmounted, ref, watch } from "vue";
+import { join } from 'path-browserify';
 
 import CloseIcon from "@rugo-vn/vue/dist/ionicons/CloseIcon.vue";
 
@@ -41,8 +42,8 @@ const syncValue = async () => {
   localSchema.value = schemaStore.getSchema(props.model, props.path);
   localLabel.value = props.path.split(".").slice(-1)[0];
 
-  if (localSchema.value.ref) {
-    refSchema = schemaStore.getSchema(localSchema.value.ref);
+  if (localSchema.value.to) {
+    refSchema = schemaStore.getSchema(localSchema.value.to);
   }
 };
 
@@ -54,11 +55,13 @@ const updateValue = (newValue) => {
 
 const updateItem = (item) => {
   if (!item) return updateValue(undefined);
+  
+  let prefix = '/';
+  if (refSchema && refSchema.static) {
+    prefix = join('/', refSchema.static);
+  }
 
-  updateValue(
-    (localSchema.value.prefix ? localSchema.value.prefix : "") +
-      FsId(item._id).toPath()
-  );
+  updateValue(join(prefix, FsId(item._id).toPath()));
   fileExplorer.value.sync();
   isFocus.value = false;
   syncValue();
@@ -113,7 +116,7 @@ syncValue();
       formatLabel(localLabel)
     }}</label>
     <div v-if="edit">
-      <div v-if="localSchema.ref" ref="inputBox" class="relative">
+      <div v-if="localSchema.to" ref="inputBox" class="relative">
         <input
           class="block border w-full p-3 rounded-lg outline-none focus:border-black dark:bg-gray-900 dark:border-gray-500 dark:focus:border-primary-500"
           placeholder="Select a file"

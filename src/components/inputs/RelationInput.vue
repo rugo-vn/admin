@@ -38,8 +38,8 @@ const syncValue = async () => {
   localSchema.value = schemaStore.getSchema(props.model, props.path);
   localLabel.value = props.path.split(".").slice(-1)[0];
 
-  if (localSchema.value.ref) {
-    refSchema = schemaStore.getSchema(localSchema.value.ref);
+  if (localSchema.value.to) {
+    refSchema = schemaStore.getSchema(localSchema.value.to);
     firstField = Object.keys(refSchema.properties || {})[0] || "_id";
   }
 
@@ -107,7 +107,7 @@ syncValue();
       formatLabel(localLabel)
     }}</label>
     <div v-if="edit">
-      <div v-if="localSchema.ref" class="relative">
+      <div v-if="localSchema.to" class="relative">
         <input
           class="block border w-full p-3 rounded-lg peer outline-none focus:border-black dark:bg-gray-900 dark:border-gray-500 dark:focus:border-primary-500 peer"
           :placeholder="localItem ? '' : `Search something`"
