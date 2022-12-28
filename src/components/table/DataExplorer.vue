@@ -15,7 +15,7 @@ import DataForm from "./DataForm.vue";
 import { useRouter } from "vue-router";
 import RPagination from "../RPagination.vue";
 
-const props = defineProps(["model", "open"]);
+const props = defineProps(["tableName", "open"]);
 
 const selectionStore = useSelectionStore();
 const schemaStore = useSchemaStore();
@@ -34,10 +34,10 @@ const skip = ref(0);
 const limit = ref(0);
 
 const syncValue = async () => {
-  localSchema.value = schemaStore.getSchema(props.model, "");
+  localSchema.value = schemaStore.getSchema(props.tableName, "");
 
   if (!localSchema.value)
-    throw new Error(`Could not find schema for ${props.model}`);
+    throw new Error(`Could not find schema for ${props.tableName}`);
 
   localLables.value = [DEFAULT_ID_FIELD];
   for (let name in localSchema.value.properties) {
@@ -46,7 +46,7 @@ const syncValue = async () => {
   }
   autoLabel();
 
-  const { data: result, meta } = await apiStore.find(props.model, {
+  const { data: result, meta } = await apiStore.table.find(props.tableName, {
     skip: skip.value,
   });
 
@@ -89,13 +89,13 @@ const isSelected = (id) => {
 const handleAction = (name, item) => {
   switch (name) {
     case "details":
-      dataFormId.value = item._id;
+      dataFormId.value = item.id;
       dataFormMode.value = "view";
       dataForm.value.show();
       break;
 
     case "edit":
-      dataFormId.value = item._id;
+      dataFormId.value = item.id;
       dataFormMode.value = "edit";
       dataForm.value.show();
       break;
@@ -104,7 +104,7 @@ const handleAction = (name, item) => {
 
 const handleClick = (item) => {
   if (!props.open || typeof props.open !== "function") {
-    return toggleSelect(item._id, !isSelected(item._id));
+    return toggleSelect(item.id, !isSelected(item.id));
   }
 
   router.push(props.open(item));
@@ -120,7 +120,7 @@ const updateSkip = (val) => {
   syncValue();
 };
 
-watch(() => [props.model], syncValue);
+watch(() => [props.tableName], syncValue);
 
 const dataTableResize = () => {
   autoLabel();
@@ -162,7 +162,7 @@ syncValue();
             :indeterminate="selectionStore.isAnySelected(data.length)"
             :modelValue="selectionStore.isAllSelected(data.length)"
             @update:modelValue="toggleSelectAll($event)"
-            v-if="label === '_id'"
+            v-if="label === 'id'"
           />
 
           <div v-else>
@@ -185,7 +185,7 @@ syncValue();
           >
             <RCheckbox
               class="block h-full flex"
-              v-if="label === '_id'"
+              v-if="label === 'id'"
               type="checkbox"
               :modelValue="isSelected(row[DEFAULT_ID_FIELD])"
               @update:modelValue="toggleSelect(row[DEFAULT_ID_FIELD], $event)"
@@ -194,7 +194,7 @@ syncValue();
               <AutoInput
                 class="cursor-pointer select-none"
                 :value="row"
-                :model="model"
+                :model="tableName"
                 :path="label"
                 :inline="true"
                 :edit="false"
@@ -229,11 +229,11 @@ syncValue();
 
 <style lang="scss">
 .data-table {
-  .head-_id {
+  .head-id {
     width: 0;
   }
 
-  .cell-_id {
+  .cell-id {
     width: 0;
   }
 

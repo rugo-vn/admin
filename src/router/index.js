@@ -24,8 +24,12 @@ export const routes = [
         component: () => import("../views/dashboard/OverviewView.vue"),
       },
       {
-        path: "models/:model",
-        component: () => import("../views/dashboard/ModelView.vue"),
+        path: "tables/:tableName",
+        component: () => import("../views/dashboard/TableView.vue"),
+      },
+      {
+        path: "drives/:driveName",
+        component: () => import("../views/dashboard/DriveView.vue"),
       },
     ],
   },

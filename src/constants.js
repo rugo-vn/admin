@@ -1,6 +1,6 @@
 export const DELAY_SEARCH = 1000;
 
-export const DEFAULT_ID_FIELD = "_id";
+export const DEFAULT_ID_FIELD = "id";
 
 export const TOKEN_NAME = "token";
 export const NOTICE_TIMEOUT = 2000;
@@ -15,7 +15,8 @@ export const SELECT_MODE = {
 
 export const API = {
   base: "/api/",
-  data: "/api/data/",
+  table: "/api/tables/",
+  drive: "/api/drives/",
   signIn: "/api/login",
   signUp: "/api/register",
   info: "/api/info",

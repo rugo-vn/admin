@@ -30,22 +30,29 @@ const handleAction = (type) => {
 const loadData = async () => {
   isLoad.value = false;
 
-  const data = await apiStore.getInfo();
+  const data = await apiStore.auth.getInfo();
 
   if (!data) return router.push(VIEW.SignInView);
 
-  const { schemas } = data;
+  const { schemas, drives } = data;
   schemaStore.setSchemas(schemas);
+  schemaStore.setDrives(drives);
 
   navigations.push(
     ...[
       { type: "label", name: "Dashboard" },
       { name: "Overview", href: VIEW.OverviewView, icon: "home" },
-      { type: "label", name: "Models" },
-      ...schemas.map((schema) => ({
-        name: formatLabel(schema.name),
-        href: `/dashboard/models/${schema.name}`,
-        icon: schema.icon,
+      { type: "label", name: "Tables" },
+      ...Object.entries(schemas).map(([tableName, schema]) => ({
+        name: formatLabel(tableName),
+        href: `/dashboard/tables/${tableName}`,
+        icon: schema.icon || 'server',
+      })),
+      { type: "label", name: "Tables" },
+      ...Object.entries(drives).map(([driveName, config]) => ({
+        name: formatLabel(driveName),
+        href: `/dashboard/drives/${driveName}`,
+        icon: config.icon || 'file-tray',
       })),
       { type: "label", name: "Account" },
       { name: "Change Password", icon: "lock-closed" },

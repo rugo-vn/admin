@@ -4,18 +4,19 @@ import objectPath from "object-path";
 export const useSchemaStore = defineStore("schema", {
   state: () => ({
     schemas: {},
+    drives: {},
   }),
 
   actions: {
     setSchemas(schemas) {
-      for (let schema of schemas) {
-        this.schemas[schema.name] = schema;
-      }
+      this.schemas = {
+        ...schemas,
+      };
     },
 
-    getSchema(model, path = "") {
+    getSchema(tableName, path = "") {
       const ps = path.split(".").filter((i) => i);
-      let schemaPath = model;
+      let schemaPath = tableName;
 
       for (let name of ps) {
         let numberName = parseInt(name);
@@ -39,5 +40,15 @@ export const useSchemaStore = defineStore("schema", {
 
       return objectPath.get(this.schemas, schemaPath);
     },
+
+    setDrives(drives) {
+      this.drives = {
+        ...drives,
+      };
+    },
+
+    getDrive(driveName) {
+      return this.drives[driveName];
+    }
   },
 });

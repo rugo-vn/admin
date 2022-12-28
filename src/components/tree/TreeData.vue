@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch } from "vue";
+import { join } from 'path-browserify';
 
 import CloudUploadIcon from "@rugo-vn/vue/dist/ionicons/CloudUploadIcon.vue";
 import TrashIcon from "@rugo-vn/vue/dist/ionicons/TrashIcon.vue";
@@ -14,7 +15,7 @@ import FileExplorer from "./FileExplorer.vue";
 import { useSelectionStore } from "../../stores/selection";
 import UploadForm from "./UploadForm.vue";
 
-const props = defineProps(["model"]);
+const props = defineProps(["driveName"]);
 
 const apiStore = useApiStore();
 const selectionStore = useSelectionStore();
@@ -34,7 +35,7 @@ const removeSelected = async () => {
   let no = 0;
   for (let id of selectionStore.selected) {
     try {
-      await apiStore.remove(props.model, id);
+      await apiStore.remove(props.driveName, id);
       no++;
     } catch (err) {
       console.error(err);
@@ -64,13 +65,12 @@ const createDirectory = async () => {
 
   if (!name) return;
 
-  await apiStore.create(props.model, {
-    name,
-    parent: FsId.fromPath(parent.value).toString(),
-    mime: DIRECTORY_MIME,
+  await apiStore.drive.create(props.driveName, {
+    path: join(parent.value, name),
+    isDir: true,
   });
 
-  apiStore.pushNotice({
+  apiStore.http.pushNotice({
     type: "success",
     title: "Created",
     detail: `Folder ${name} was created.`,
@@ -89,7 +89,7 @@ const syncValue = async () => {
     fileExplorer.value.sync();
   }
 };
-watch(() => props.model, syncValue);
+watch(() => props.driveName, syncValue);
 syncValue();
 </script>
 
@@ -98,7 +98,7 @@ syncValue();
     <RDialog :label="false" ref="uploadForm">
       <UploadForm
         class="text-base h-32"
-        :model="model"
+        :model="driveName"
         :parent="parent"
         @update:value="updateUploadForm"
       />
@@ -133,7 +133,7 @@ syncValue();
 
     <FileExplorer
       ref="fileExplorer"
-      :model="model"
+      :driveName="driveName"
       @update:parent="parent = $event"
     />
   </div>

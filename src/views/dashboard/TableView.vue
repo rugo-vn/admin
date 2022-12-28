@@ -13,24 +13,18 @@ const route = useRoute();
 const appStore = useAppStore();
 const schemaStore = useSchemaStore();
 
-const DATA_SELECTION = {
-  mem: TableData,
-  mongo: TableData,
-  fs: TreeData,
-};
-
-const model = ref("");
+const tableName = ref("");
 const localSchema = ref({});
 
 const syncValue = async () => {
-  if (!route.params.model) return;
+  if (!route.params.tableName) return;
 
-  model.value = route.params.model;
-  localSchema.value = schemaStore.getSchema(model.value, "");
-  appStore.view = formatLabel(model.value);
+  tableName.value = route.params.tableName;
+  localSchema.value = schemaStore.getSchema(tableName.value, "");
+  appStore.view = formatLabel(tableName.value);
 };
 
-watch(() => route.params.model, syncValue);
+watch(() => route.params.tableName, syncValue);
 
 syncValue();
 </script>
@@ -38,15 +32,14 @@ syncValue();
 <template>
   <RHeading>{{ appStore.view }}</RHeading>
 
-  <RPanel v-if="localSchema">
-    <component
-      v-if="DATA_SELECTION[localSchema.driver]"
-      :is="DATA_SELECTION[localSchema.driver]"
-      :model="model"
+  <RPanel>
+    <TableData
+      v-if="localSchema"
+      :tableName="tableName"
     />
 
     <div v-else class="text-center italic">
-      Cannot find data displayer for {{ localSchema.driver }} driver.
+      Table is not found.
     </div>
   </RPanel>
 </template>

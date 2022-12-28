@@ -11,7 +11,7 @@ import RDialog from "../RDialog.vue";
 import DataForm from "./DataForm.vue";
 import { useSelectionStore } from "../../stores/selection.js";
 
-const props = defineProps(["model", "open"]);
+const props = defineProps(["tableName", "open"]);
 
 const apiStore = useApiStore();
 const selectionStore = useSelectionStore();
@@ -35,7 +35,7 @@ const removeSelected = async () => {
   let no = 0;
   for (let id of selectionStore.selected) {
     try {
-      await apiStore.remove(props.model, id);
+      await apiStore.table.remove(props.tableName, id);
       no++;
     } catch (err) {
       console.error(err);
@@ -43,7 +43,7 @@ const removeSelected = async () => {
   }
 
   if (no !== selectionStore.selected.length) {
-    apiStore.pushNotice({
+    apiStore.http.pushNotice({
       type: "danger",
       title: "Not removed",
       detail: `Cannot remove ${selectionStore.selected.length - no} item(s).`,
@@ -51,7 +51,7 @@ const removeSelected = async () => {
   }
 
   if (no) {
-    apiStore.pushNotice({
+    apiStore.http.pushNotice({
       type: "success",
       title: "Removed",
       detail: `Removed ${no} item(s).`,
@@ -61,19 +61,19 @@ const removeSelected = async () => {
   }
 };
 
-const syncValue = async () => {
-  if (dataExplorer.value) {
-    dataExplorer.value.sync();
-  }
-};
-watch(() => props.model, syncValue);
-syncValue();
+// const syncValue = async () => {
+//   if (dataExplorer.value) {
+//     dataExplorer.value.sync();
+//   }
+// };
+// watch(() => props.tableName, syncValue);
+// syncValue();
 </script>
 
 <template>
   <div class="table-data">
     <RDialog :label="false" ref="dataForm">
-      <DataForm mode="create" :model="model" @update:value="updateDataForm" />
+      <DataForm mode="create" :tableName="tableName" @update:value="updateDataForm" />
     </RDialog>
 
     <div class="toolbar mb-4">
@@ -95,7 +95,7 @@ syncValue();
       </RButton>
     </div>
 
-    <DataExplorer ref="dataExplorer" :model="model" :open="open" />
+    <DataExplorer ref="dataExplorer" :tableName="tableName" :open="open" />
   </div>
 </template>
 

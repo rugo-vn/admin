@@ -11,7 +11,7 @@ import RBreadcrumb from "../RBreadcrumb.vue";
 import { join } from "path-browserify";
 import DropDown from "../DropDown.vue";
 
-const props = defineProps(["mode", "model", "parent"]);
+const props = defineProps(["mode", "driveName", "parent"]);
 const emit = defineEmits(["update:parent", "update:value"]);
 
 const selectionStore = useSelectionStore();
@@ -42,12 +42,7 @@ const syncValue = async () => {
 
   selectionStore.clear();
 
-  const { data: result } = await apiStore.find(props.model, {
-    query: {
-      parent: FsId.fromPath(localParent.value).toString(),
-    },
-    limit: -1,
-  });
+  const result = await apiStore.drive.list(props.driveName, '/');
 
   result.sort((a, b) => {
     if (a.mime === DIRECTORY_MIME && b.mime !== DIRECTORY_MIME) return -1;
@@ -94,12 +89,12 @@ const handleAction = async (name, item) => {
   let res;
   switch (name) {
     case "download":
-      res = await apiStore.download(props.model, item._id);
+      res = await apiStore.download(props.driveName, item._id);
       download(res, item.name);
 
       break;
     default:
-      res = await apiStore.x(name, props.model, item._id);
+      res = await apiStore.x(name, props.driveName, item._id);
       apiStore.pushNotice({
         type: "primary",
         title: `${name}`,
@@ -109,7 +104,7 @@ const handleAction = async (name, item) => {
   }
 };
 
-watch(() => [props.model, props.parent], syncValue);
+watch(() => [props.driveName, props.parent], syncValue);
 
 defineExpose({ sync: syncValue });
 syncValue();

@@ -5,11 +5,11 @@ import { useApiStore } from "./stores/api.js";
 
 const apiStore = useApiStore();
 
-apiStore.init();
+apiStore.http.init();
 </script>
 
 <template>
   <RouterView />
-  <ScreenLoader v-if="apiStore.isLoading" />
-  <NoticeDisplayer :notices="apiStore.notices" />
+  <ScreenLoader v-if="apiStore.http.isLoading" />
+  <NoticeDisplayer :notices="apiStore.http.notices" />
 </template>

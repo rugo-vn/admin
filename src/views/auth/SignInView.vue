@@ -13,11 +13,11 @@ const form = reactive({
 });
 
 const signIn = async () => {
-  await apiStore.signIn(form.identity, form.password);
+  await apiStore.auth.signIn(form.identity, form.password);
   router.push(VIEW.OverviewView);
 };
 
-apiStore.setToken(null);
+apiStore.http.setToken(null);
 </script>
 
 <template>

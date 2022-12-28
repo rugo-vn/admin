@@ -4,7 +4,7 @@ import { useApiStore } from "../../stores/api.js";
 import { formatLabel } from "../../utils.js";
 import AutoInput from "../inputs/AutoInput.vue";
 
-const props = defineProps(["model", "mode", "id"]);
+const props = defineProps(["tableName", "mode", "id"]);
 const emit = defineEmits(["update:value"]);
 
 const apiStore = useApiStore();
@@ -18,8 +18,8 @@ const clearForm = () => {
 
 const saveForm = async () => {
   if (props.mode === "create") {
-    const { data } = await apiStore.create(props.model, form);
-    apiStore.pushNotice({
+    const { data } = await apiStore.table.create(props.tableName, form);
+    apiStore.http.pushNotice({
       type: "success",
       title: "Created",
       detail: "Document was created successfully",
@@ -28,8 +28,8 @@ const saveForm = async () => {
   }
 
   if (props.mode === "edit" && props.id) {
-    const { data } = await apiStore.update(props.model, props.id, form);
-    apiStore.pushNotice({
+    const { data } = await apiStore.table.update(props.tableName, props.id, form);
+    apiStore.http.pushNotice({
       type: "success",
       title: "Updated",
       detail: "Document was updated successfully",
@@ -43,14 +43,14 @@ const saveForm = async () => {
 const syncValue = async () => {
   if (props.id) {
     clearForm();
-    const { data } = await apiStore.get(props.model, props.id);
+    const { data } = await apiStore.table.get(props.tableName, props.id);
     for (let key in data) {
       form[key] = data[key];
     }
   }
 };
 
-watch(() => [props.model, props.id], syncValue);
+watch(() => [props.tableName, props.id], syncValue);
 
 syncValue();
 </script>
@@ -59,11 +59,11 @@ syncValue();
   <AutoInput
     class="mb-4 data-form"
     :value="form"
-    :model="model"
+    :model="tableName"
     path=""
     :inline="false"
     :edit="mode === 'view' ? false : true"
-    :disabled="apiStore.isLoading"
+    :disabled="apiStore.http.isLoading"
     @update:value="updateDataForm"
   />
 

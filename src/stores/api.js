@@ -10,7 +10,7 @@ import {
 
 const validateStatus = (status) => status >= 200 && status < 500;
 
-export const useApiStore = defineStore("api", {
+const useHttpStore = defineStore('http', {
   state: () => ({
     nload: 0,
     token: null,
@@ -70,15 +70,13 @@ export const useApiStore = defineStore("api", {
     handleResponse(res) {
       if (res.status === 200) return res.data;
 
-      if (res.data && res.data.errors) {
-        for (let err of res.data.errors) {
-          this.pushNotice({
-            ...err,
-            type: "danger",
-          });
-        }
+      if (res.data && res.data.error) {
+        this.pushNotice({
+          ...res.data.error,
+          type: "danger",
+        });
 
-        throw res.data.errors.map((i) => `${i.title}: ${i.detail}`).join("\n");
+        throw `${res.data.error.title}: ${res.data.error.detail}`;
       }
 
       throw new Error(res.data);
@@ -97,73 +95,84 @@ export const useApiStore = defineStore("api", {
         at: Date.now(),
       });
     },
+  },
+});
 
-    // auth
+const useAuthStore = defineStore('auth', () => {
+  const http = useHttpStore();
+
+  return {
     async signIn(email, password) {
-      const http = this.createHttp();
+      const req = http.createHttp();
 
-      this.startLoad();
-      const res = await http.post(API.signIn, { email, password });
-      this.endLoad();
+      http.startLoad();
+      const res = await req.post(API.signIn, { email, password });
+      http.endLoad();
 
-      const { data: token } = this.handleResponse(res);
+      const { token } = http.handleResponse(res);
 
-      this.pushNotice({
+      http.pushNotice({
         type: "success",
         title: "Success",
         detail: "Signed in successfully",
       });
 
-      this.setToken(token);
+      http.setToken(token);
     },
     signUp() {},
 
     // info
     async getInfo() {
-      const http = this.createHttp();
+      const req = http.createHttp();
 
-      this.startLoad();
-      const res = await http.get(API.info);
-      this.endLoad();
+      http.startLoad();
+      const res = await req.get(API.info);
+      http.endLoad();
 
       try {
-        return this.handleResponse(res);
+        return http.handleResponse(res);
       } catch (_) {
         return null;
       }
     },
+  }
+});
 
-    // model
+const useTableStore = defineStore('table', () => {
+  const http = useHttpStore();
+
+  return {
+    // table handlers
     async get(model, id) {
-      const http = this.createHttp();
+      const req = http.createHttp();
 
-      this.startLoad();
-      const res = await http.get(API.data + model + `/${id}`);
-      this.endLoad();
+      http.startLoad();
+      const res = await req.get(API.table + model + `/${id}`);
+      http.endLoad();
 
-      return this.handleResponse(res);
+      return http.handleResponse(res);
     },
 
     async create(model, form) {
-      const http = this.createHttp();
+      const req = http.createHttp();
 
-      this.startLoad();
-      const res = await http.post(API.data + model, form);
-      this.endLoad();
+      http.startLoad();
+      const res = await req.post(API.table + model, form);
+      http.endLoad();
 
-      return this.handleResponse(res);
+      return http.handleResponse(res);
     },
 
     async find(model, query) {
-      const http = this.createHttp();
+      const req = http.createHttp();
 
-      this.startLoad();
-      const res = await http.get(
-        API.data + model + (query ? `?${qs.stringify(query)}` : "")
+      http.startLoad();
+      const res = await req.get(
+        API.table + model + (query ? `?${qs.stringify(query)}` : "")
       );
-      this.endLoad();
+      http.endLoad();
 
-      return this.handleResponse(res);
+      return http.handleResponse(res);
     },
 
     async update(model, id, form) {
@@ -180,45 +189,114 @@ export const useApiStore = defineStore("api", {
         }
       }
 
-      const http = this.createHttp();
+      const req = http.createHttp();
 
-      this.startLoad();
-      const res = await http.patch(API.data + model + `/${id}`, { set, unset });
-      this.endLoad();
+      http.startLoad();
+      const res = await req.patch(API.table + model + `/${id}`, { set, unset });
+      http.endLoad();
 
-      return this.handleResponse(res);
+      return http.handleResponse(res);
     },
 
     async remove(model, id) {
-      const http = this.createHttp();
+      const req = http.createHttp();
 
-      this.startLoad();
-      const res = await http.delete(API.data + model + `/${id}`);
-      this.endLoad();
+      http.startLoad();
+      const res = await req.delete(API.table + model + `/${id}`);
+      http.endLoad();
 
-      return this.handleResponse(res);
+      return http.handleResponse(res);
     },
-
-    async x(action, model, id) {
-      const http = this.createHttp();
-
-      this.startLoad();
-      const res = await http.get(API.base + `${action}/` + model + `/${id}`);
-      this.endLoad();
-
-      return this.handleResponse(res);
-    },
-
-    async download(model, id) {
-      const http = this.createHttp();
-
-      this.startLoad();
-      const res = await http.get(API.base + `download/` + model + `/${id}`, {
-        responseType: "blob",
-      });
-      this.endLoad();
-
-      return this.handleResponse(res);
-    },
-  },
+  };
 });
+
+const useDriveStore = defineStore('drive', () => {
+  const http = useHttpStore();
+
+  return {
+    async list(driveName, entryPath) {
+      const req = http.createHttp();
+
+      http.startLoad();
+      const res = await req.get(
+        API.drive + driveName + `?${qs.stringify({ path: entryPath })}`
+      );
+      http.endLoad();
+
+      return http.handleResponse(res);
+    },
+
+    async create(driveName, form) {
+      const req = http.createHttp();
+
+      http.startLoad();
+      const res = await req.post(API.drive + driveName, form);
+      http.endLoad();
+
+      return http.handleResponse(res);
+    },
+  };
+});
+
+export const useApiStore = defineStore('api', () => {
+  const http = useHttpStore();
+  const auth = useAuthStore();
+  const table = useTableStore();
+  const drive = useDriveStore();
+
+  return { http, auth, table, drive };
+});
+
+// export const useApiStore = defineStore("api", {
+//   state: () => ({
+//     nload: 0,
+//     token: null,
+//     headers: {},
+//     notices: [],
+//     currentNoticeId: 0,
+//   }),
+
+//   getters: {
+//     isLoading() {
+//       return this.nload > 0;
+//     },
+//   },
+
+//   actions: {
+
+//     // auth
+
+//     
+
+//     async x(action, model, id) {
+//       const http = this.createHttp();
+
+//       this.startLoad();
+//       const res = await http.get(API.base + `${action}/` + model + `/${id}`);
+//       this.endLoad();
+
+//       return this.handleResponse(res);
+//     },
+
+//     async download(model, id) {
+//       const http = this.createHttp();
+
+//       this.startLoad();
+//       const res = await http.get(API.base + `download/` + model + `/${id}`, {
+//         responseType: "blob",
+//       });
+//       this.endLoad();
+
+//       return this.handleResponse(res);
+//     },
+
+//     // drive handlers
+//     domain(name) {
+//       const actions = {};
+//       for (let actionName in domains[name]) {
+//         actions[actionName] = domains[name][actionName].bind(this);
+//       }
+//       return actions;
+//     }
+//   },
+// });
