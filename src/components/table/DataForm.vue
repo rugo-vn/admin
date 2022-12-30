@@ -43,7 +43,7 @@ const saveForm = async () => {
 const syncValue = async () => {
   if (props.id) {
     clearForm();
-    const { data } = await apiStore.table.get(props.tableName, props.id);
+    const data = await apiStore.table.get(props.tableName, props.id);
     for (let key in data) {
       form[key] = data[key];
     }

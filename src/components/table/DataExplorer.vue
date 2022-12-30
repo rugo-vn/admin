@@ -146,7 +146,7 @@ syncValue();
       <DataForm
         :id="dataFormId"
         :mode="dataFormMode"
-        :model="model"
+        :tableName="tableName"
         @update:value="updateDataForm"
       />
     </RDialog>
