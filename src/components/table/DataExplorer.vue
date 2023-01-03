@@ -88,6 +88,10 @@ const isSelected = (id) => {
 
 const handleAction = (name, item) => {
   switch (name) {
+    case "open":
+      handleClick(item);
+      break;
+
     case "details":
       dataFormId.value = item.id;
       dataFormMode.value = "view";

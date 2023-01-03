@@ -43,13 +43,13 @@ const loadData = async () => {
       { type: "label", name: "Dashboard" },
       { name: "Overview", href: VIEW.OverviewView, icon: "home" },
       { type: "label", name: "Tables" },
-      ...Object.entries(schemas).map(([tableName, schema]) => ({
+      ...Object.entries(schemas).filter(([_, schema]) => !schema.hidden).map(([tableName, schema]) => ({
         name: formatLabel(tableName),
         href: `/dashboard/tables/${tableName}`,
         icon: schema.icon || 'server',
       })),
       { type: "label", name: "Tables" },
-      ...Object.entries(drives).map(([driveName, config]) => ({
+      ...Object.entries(drives).filter(([_, config]) => !config.hidden).map(([driveName, config]) => ({
         name: formatLabel(driveName),
         href: `/dashboard/drives/${driveName}`,
         icon: config.icon || 'file-tray',
