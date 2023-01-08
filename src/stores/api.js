@@ -1,11 +1,14 @@
 import axios from "axios";
 import qs from "qs";
 import { defineStore } from "pinia";
+import { useRouter } from "vue-router";
+import { useSchemaStore } from "./schema.js";
 import {
   API,
   DEFAULT_ID_FIELD,
   NOTICE_TIMEOUT,
   TOKEN_NAME,
+  VIEW,
 } from "../constants.js";
 
 const validateStatus = (status) => status >= 200 && status < 500;
@@ -243,60 +246,33 @@ export const useApiStore = defineStore('api', () => {
   const auth = useAuthStore();
   const table = useTableStore();
   const drive = useDriveStore();
+  const router = useRouter();
+  const schemaStore = useSchemaStore();
 
-  return { http, auth, table, drive };
+  return { http, auth, table, drive,
+    async load() {
+      let data;
+
+      if (http.token)
+        data = await auth.getInfo();
+
+      if (!data) {
+        http.pushNotice({
+          type: "warn",
+          title: "Reminder",
+          detail: "Please sign in to access!",
+        });
+        http.setToken(null);
+        return router.push(VIEW.SignInView);
+      }
+
+      const { schemas, drives, overviews } = data;
+      schemaStore.setSchemas(schemas);
+      schemaStore.setDrives(drives);
+      schemaStore.setOverviews(overviews);
+
+      if (location.hash.indexOf('#/dashboard') === -1)
+        router.push(VIEW.OverviewView);
+    }
+  };
 });
-
-// export const useApiStore = defineStore("api", {
-//   state: () => ({
-//     nload: 0,
-//     token: null,
-//     headers: {},
-//     notices: [],
-//     currentNoticeId: 0,
-//   }),
-
-//   getters: {
-//     isLoading() {
-//       return this.nload > 0;
-//     },
-//   },
-
-//   actions: {
-
-//     // auth
-
-//     
-
-//     async x(action, model, id) {
-//       const http = this.createHttp();
-
-//       this.startLoad();
-//       const res = await http.get(API.base + `${action}/` + model + `/${id}`);
-//       this.endLoad();
-
-//       return this.handleResponse(res);
-//     },
-
-//     async download(model, id) {
-//       const http = this.createHttp();
-
-//       this.startLoad();
-//       const res = await http.get(API.base + `download/` + model + `/${id}`, {
-//         responseType: "blob",
-//       });
-//       this.endLoad();
-
-//       return this.handleResponse(res);
-//     },
-
-//     // drive handlers
-//     domain(name) {
-//       const actions = {};
-//       for (let actionName in domains[name]) {
-//         actions[actionName] = domains[name][actionName].bind(this);
-//       }
-//       return actions;
-//     }
-//   },
-// });

@@ -6,6 +6,7 @@ import { useApiStore } from "./stores/api.js";
 const apiStore = useApiStore();
 
 apiStore.http.init();
+apiStore.load();
 </script>
 
 <template>

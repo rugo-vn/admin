@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import qs from 'qs';
 
 export const routes = [
   { path: "/", redirect: "/auth/signin" },
@@ -11,6 +12,11 @@ export const routes = [
         path: "signin",
         component: () => import("../views/auth/SignInView.vue"),
       },
+      {
+        name: "SignOutView",
+        path: "signout",
+        component: () => import("../views/auth/SignOutView.vue"),
+      },
     ],
   },
   {
@@ -22,6 +28,11 @@ export const routes = [
         name: "OverviewView",
         path: "overview",
         component: () => import("../views/dashboard/OverviewView.vue"),
+      },
+      {
+        name: "DocumentView",
+        path: "documents",
+        component: () => import("../views/dashboard/DocumentView.vue"),
       },
       {
         path: "tables/:tableName",

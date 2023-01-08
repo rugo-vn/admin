@@ -1,10 +1,11 @@
 <script setup>
 import { reactive } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useApiStore } from "../../stores/api";
 import { VIEW } from "../../constants.js";
 
 const apiStore = useApiStore();
+const route = useRoute();
 const router = useRouter();
 
 const form = reactive({
@@ -14,10 +15,13 @@ const form = reactive({
 
 const signIn = async () => {
   await apiStore.auth.signIn(form.identity, form.password);
+  await apiStore.load();
   router.push(VIEW.OverviewView);
 };
 
-apiStore.http.setToken(null);
+console.log(route.query);
+
+// apiStore.http.setToken(null);
 </script>
 
 <template>

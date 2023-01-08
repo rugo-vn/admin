@@ -5,6 +5,7 @@ export const useSchemaStore = defineStore("schema", {
   state: () => ({
     schemas: {},
     drives: {},
+    overviews: [],
   }),
 
   actions: {
@@ -49,6 +50,12 @@ export const useSchemaStore = defineStore("schema", {
 
     getDrive(driveName) {
       return this.drives[driveName];
-    }
+    },
+
+    setOverviews(overviews) {
+      this.overviews = [
+        ...overviews,
+      ];
+    },
   },
 });

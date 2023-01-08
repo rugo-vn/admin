@@ -12,9 +12,7 @@ import { useSchemaStore } from "../stores/schema.js";
 import { formatLabel } from "../utils.js";
 import RSideNav from "../components/RSideNav.vue";
 
-const router = useRouter();
 const appStore = useAppStore();
-const apiStore = useApiStore();
 const schemaStore = useSchemaStore();
 
 const navControl = ref(false);
@@ -30,25 +28,20 @@ const handleAction = (type) => {
 const loadData = async () => {
   isLoad.value = false;
 
-  const data = await apiStore.auth.getInfo();
-
-  if (!data) return router.push(VIEW.SignInView);
-
-  const { schemas, drives } = data;
-  schemaStore.setSchemas(schemas);
-  schemaStore.setDrives(drives);
+  const { schemas, drives } = schemaStore;
 
   navigations.push(
     ...[
       { type: "label", name: "Dashboard" },
       { name: "Overview", href: VIEW.OverviewView, icon: "home" },
+      { name: "API Explorer", href: VIEW.DocumentView, icon: "search" },
       { type: "label", name: "Tables" },
       ...Object.entries(schemas).filter(([_, schema]) => !schema.hidden).map(([tableName, schema]) => ({
         name: formatLabel(tableName),
         href: `/dashboard/tables/${tableName}`,
         icon: schema.icon || 'server',
       })),
-      { type: "label", name: "Tables" },
+      { type: "label", name: "Drives" },
       ...Object.entries(drives).filter(([_, config]) => !config.hidden).map(([driveName, config]) => ({
         name: formatLabel(driveName),
         href: `/dashboard/drives/${driveName}`,
@@ -56,7 +49,7 @@ const loadData = async () => {
       })),
       { type: "label", name: "Account" },
       { name: "Change Password", icon: "lock-closed" },
-      { name: "Sign out", href: VIEW.SignInView, icon: "log-out" },
+      { name: "Sign out", href: VIEW.SignOutView, icon: "log-out" },
     ]
   );
 
@@ -72,7 +65,6 @@ const changeView = () => {
 };
 
 watch(() => appStore.view, changeView);
-
 loadData();
 </script>
 

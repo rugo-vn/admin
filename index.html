@@ -23,8 +23,17 @@
     
     <div id="app" class="antialiased font-sans text-sm dark:text-white"></div>
 
-    <script>
+    <script type="module">
+      import qs from 'qs';
+      import { TOKEN_NAME } from './src/constants.js'
+
+      // load screen
       window.addEventListener('load', () => { document.getElementById('r-loader').classList.add('hidden') });
+
+      // set token
+      const { token } = qs.parse(location.hash.split('?')?.[1] || '');
+      if (token)
+        sessionStorage.setItem(TOKEN_NAME, token);
     </script>
     <script type="module" src="/src/main.js"></script>
   </body>
