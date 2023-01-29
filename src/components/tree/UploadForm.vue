@@ -1,9 +1,9 @@
 <script setup>
 import DocumentTextIcon from "@rugo-vn/vue/dist/ionicons/DocumentTextIcon.vue";
 import { ref } from "vue";
+import { join } from 'path-browserify';
 
 import { useApiStore } from "../../stores/api.js";
-import { FsId } from "../../utils.js";
 
 const props = defineProps(["model", "mode", "parent"]);
 const emit = defineEmits(["update:value"]);
@@ -17,9 +17,8 @@ const upload = async () => {
 
   for (let file of uploadInput.value.files) {
     let formData = new FormData();
-    formData.append("name", file.name);
-    formData.append("parent", FsId.fromPath(props.parent).toString());
-    formData.append("data", file);
+    formData.append("path", join(props.parent, file.name));
+    formData.append("file", file);
 
     docs.push(formData);
   }
@@ -28,7 +27,7 @@ const upload = async () => {
   let results = [];
   for (let doc of docs) {
     try {
-      let res = await apiStore.create(props.model, doc);
+      let res = await apiStore.drive.create(props.model, doc);
       no++;
       results.push(res.data);
     } catch (err) {
@@ -37,7 +36,7 @@ const upload = async () => {
   }
 
   if (no) {
-    apiStore.pushNotice({
+    apiStore.http.pushNotice({
       type: "success",
       title: "Uploaded",
       detail: `Uploaded ${no} item(s).`,
@@ -47,7 +46,7 @@ const upload = async () => {
   }
 
   if (no !== docs.length) {
-    apiStore.pushNotice({
+    apiStore.http.pushNotice({
       type: "danger",
       title: "Not uploaded",
       detail: `Cannot uploaded ${docs.length - no} item(s).`,

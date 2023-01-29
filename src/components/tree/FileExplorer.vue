@@ -42,7 +42,7 @@ const syncValue = async () => {
 
   selectionStore.clear();
 
-  const result = await apiStore.drive.list(props.driveName, '/');
+  const result = await apiStore.drive.list(props.driveName, localParent.value);
 
   result.sort((a, b) => {
     if (a.mime === DIRECTORY_MIME && b.mime !== DIRECTORY_MIME) return -1;
@@ -68,12 +68,12 @@ const toggleSelect = (id, val) => {
 const toggleSelectAll = (val) => {
   if (!val) return selectionStore.clear();
 
-  for (let item of data.value) selectionStore.select(item._id);
+  for (let item of data.value) selectionStore.select(item.path);
 };
 
 const open = (item) => {
   if (item.mime === DIRECTORY_MIME) {
-    return updateParent(FsId(item._id).toPath());
+    return updateParent(item.path);
   }
 
   emit("update:value", item);
@@ -89,12 +89,12 @@ const handleAction = async (name, item) => {
   let res;
   switch (name) {
     case "download":
-      res = await apiStore.download(props.driveName, item._id);
+      res = await apiStore.download(props.driveName, item.path);
       download(res, item.name);
 
       break;
     default:
-      res = await apiStore.x(name, props.driveName, item._id);
+      res = await apiStore.x(name, props.driveName, item.path);
       apiStore.pushNotice({
         type: "primary",
         title: `${name}`,
@@ -144,14 +144,14 @@ syncValue();
         <tr
           class="border-b dark:border-gray-700"
           v-for="item in data"
-          :key="item._id"
+          :key="item.path"
         >
           <td class="py-2 px-4 break-words" v-if="mode !== 'single'">
             <RCheckbox
               class="block h-full flex"
               type="checkbox"
-              :modelValue="isSelected(item._id)"
-              @update:modelValue="toggleSelect(item._id, $event)"
+              :modelValue="isSelected(item.path)"
+              @update:modelValue="toggleSelect(item.path, $event)"
             />
           </td>
 

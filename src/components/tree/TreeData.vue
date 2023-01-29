@@ -43,7 +43,7 @@ const removeSelected = async () => {
   }
 
   if (no !== selectionStore.selected.length) {
-    apiStore.pushNotice({
+    apiStore.http.pushNotice({
       type: "danger",
       title: "Not removed",
       detail: `Cannot remove ${selectionStore.selected.length - no} item(s).`,
@@ -51,7 +51,7 @@ const removeSelected = async () => {
   }
 
   if (no) {
-    apiStore.pushNotice({
+    apiStore.http.pushNotice({
       type: "success",
       title: "Removed",
       detail: `Removed ${no} item(s).`,
