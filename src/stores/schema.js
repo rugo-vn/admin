@@ -53,9 +53,7 @@ export const useSchemaStore = defineStore("schema", {
     },
 
     setOverviews(overviews) {
-      this.overviews = [
-        ...overviews,
-      ];
+      this.overviews = [...overviews];
     },
   },
 });

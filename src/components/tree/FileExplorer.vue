@@ -89,10 +89,22 @@ const handleAction = async (name, item) => {
   let res;
   switch (name) {
     case "download":
-      res = await apiStore.download(props.driveName, item.path);
+      res = await apiStore.drive.download(props.driveName, item.path);
       download(res, item.name);
 
       break;
+
+    case "remove":
+      if (!window.confirm(`You you want to remove 1 item(s)?`)) return;
+      await apiStore.drive.remove(props.driveName, item.path);
+      apiStore.http.pushNotice({
+        type: "success",
+        title: "Removed",
+        detail: `Removed 1 item(s).`,
+      });
+      syncValue();
+      break;
+
     default:
       res = await apiStore.x(name, props.driveName, item.path);
       apiStore.pushNotice({
@@ -188,6 +200,7 @@ syncValue();
             <DropDown
               :actions="[
                 'compress',
+                'remove',
                 ...(item.mime === 'application/zip' ? ['extract'] : []),
                 ...(item.mime !== DIRECTORY_MIME ? ['download'] : []),
               ]"

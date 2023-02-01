@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import qs from 'qs';
+import qs from "qs";
 
 export const routes = [
   { path: "/", redirect: "/auth/signin" },

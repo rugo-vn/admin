@@ -1,7 +1,7 @@
 <script setup>
 import objectPath from "object-path";
 import { onMounted, onUnmounted, ref, watch } from "vue";
-import { join } from 'path-browserify';
+import { join } from "path-browserify";
 
 import CloseIcon from "@rugo-vn/vue/dist/ionicons/CloseIcon.vue";
 
@@ -55,10 +55,10 @@ const updateValue = (newValue) => {
 
 const updateItem = (item) => {
   if (!item) return updateValue(undefined);
-  
-  let prefix = '/';
+
+  let prefix = "/";
   if (refSchema && refSchema.static) {
-    prefix = join('/', refSchema.static);
+    prefix = join("/", refSchema.static);
   }
 
   updateValue(join(prefix, FsId(item._id).toPath()));

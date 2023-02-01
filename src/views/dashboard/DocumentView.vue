@@ -21,13 +21,9 @@ appStore.view = "API Explorer";
     <RPanel class="mt-0">
       <RHeading type="h2">Explorer</RHeading>
 
-      <RInput
-        label="Method"
-      />
+      <RInput label="Method" />
 
-      <RInput
-        label="URL"
-      />
+      <RInput label="URL" />
 
       <RButton variant="primary">Send</RButton>
     </RPanel>

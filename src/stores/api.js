@@ -2,6 +2,7 @@ import axios from "axios";
 import qs from "qs";
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
+import { join } from "path-browserify";
 import { useSchemaStore } from "./schema.js";
 import {
   API,
@@ -13,7 +14,7 @@ import {
 
 const validateStatus = (status) => status >= 200 && status < 500;
 
-const useHttpStore = defineStore('http', {
+const useHttpStore = defineStore("http", {
   state: () => ({
     nload: 0,
     token: null,
@@ -48,7 +49,7 @@ const useHttpStore = defineStore('http', {
       }, 100);
     },
 
-    createHttp() {
+    createHttp(type) {
       const baseURL = import.meta.env.ADMIN_API;
       const headers = {
         ...this.headers,
@@ -59,7 +60,16 @@ const useHttpStore = defineStore('http', {
         headers.authorization = `Bearer ${token}`;
       }
 
-      return axios.create({ baseURL, headers, validateStatus });
+      return axios.create({
+        baseURL,
+        headers,
+        validateStatus,
+        ...(type
+          ? {
+              responseType: type,
+            }
+          : {}),
+      });
     },
 
     startLoad() {
@@ -101,7 +111,7 @@ const useHttpStore = defineStore('http', {
   },
 });
 
-const useAuthStore = defineStore('auth', () => {
+const useAuthStore = defineStore("auth", () => {
   const http = useHttpStore();
 
   return {
@@ -138,10 +148,10 @@ const useAuthStore = defineStore('auth', () => {
         return null;
       }
     },
-  }
+  };
 });
 
-const useTableStore = defineStore('table', () => {
+const useTableStore = defineStore("table", () => {
   const http = useHttpStore();
 
   return {
@@ -213,7 +223,7 @@ const useTableStore = defineStore('table', () => {
   };
 });
 
-const useDriveStore = defineStore('drive', () => {
+const useDriveStore = defineStore("drive", () => {
   const http = useHttpStore();
 
   return {
@@ -238,10 +248,38 @@ const useDriveStore = defineStore('drive', () => {
 
       return http.handleResponse(res);
     },
+
+    async remove(driveName, entryPath) {
+      const req = http.createHttp();
+
+      http.startLoad();
+      const res = await req.delete(
+        API.drive + driveName + `?${qs.stringify({ path: entryPath })}`
+      );
+      http.endLoad();
+
+      return http.handleResponse(res);
+    },
+
+    async download(driveName, entryPath) {
+      const req = http.createHttp("blob");
+
+      http.startLoad();
+      const res = await req.get(
+        join(
+          API.drive,
+          driveName,
+          `download?${qs.stringify({ path: entryPath })}`
+        )
+      );
+      http.endLoad();
+
+      return http.handleResponse(res);
+    },
   };
 });
 
-export const useApiStore = defineStore('api', () => {
+export const useApiStore = defineStore("api", () => {
   const http = useHttpStore();
   const auth = useAuthStore();
   const table = useTableStore();
@@ -249,12 +287,15 @@ export const useApiStore = defineStore('api', () => {
   const router = useRouter();
   const schemaStore = useSchemaStore();
 
-  return { http, auth, table, drive,
+  return {
+    http,
+    auth,
+    table,
+    drive,
     async load() {
       let data;
 
-      if (http.token)
-        data = await auth.getInfo();
+      if (http.token) data = await auth.getInfo();
 
       if (!data) {
         http.pushNotice({
@@ -271,8 +312,8 @@ export const useApiStore = defineStore('api', () => {
       schemaStore.setDrives(drives);
       schemaStore.setOverviews(overviews);
 
-      if (location.hash.indexOf('#/dashboard') === -1)
+      if (location.hash.indexOf("#/dashboard") === -1)
         router.push(VIEW.OverviewView);
-    }
+    },
   };
 });

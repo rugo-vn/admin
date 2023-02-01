@@ -36,17 +36,21 @@ const loadData = async () => {
       { name: "Overview", href: VIEW.OverviewView, icon: "home" },
       { name: "API Explorer", href: VIEW.DocumentView, icon: "search" },
       { type: "label", name: "Tables" },
-      ...Object.entries(schemas).filter(([_, schema]) => !schema.hidden).map(([tableName, schema]) => ({
-        name: formatLabel(tableName),
-        href: `/dashboard/tables/${tableName}`,
-        icon: schema.icon || 'server',
-      })),
+      ...Object.entries(schemas)
+        .filter(([_, schema]) => !schema.hidden)
+        .map(([tableName, schema]) => ({
+          name: formatLabel(tableName),
+          href: `/dashboard/tables/${tableName}`,
+          icon: schema.icon || "server",
+        })),
       { type: "label", name: "Drives" },
-      ...Object.entries(drives).filter(([_, config]) => !config.hidden).map(([driveName, config]) => ({
-        name: formatLabel(driveName),
-        href: `/dashboard/drives/${driveName}`,
-        icon: config.icon || 'file-tray',
-      })),
+      ...Object.entries(drives)
+        .filter(([_, config]) => !config.hidden)
+        .map(([driveName, config]) => ({
+          name: formatLabel(driveName),
+          href: `/dashboard/drives/${driveName}`,
+          icon: config.icon || "file-tray",
+        })),
       { type: "label", name: "Account" },
       { name: "Change Password", icon: "lock-closed" },
       { name: "Sign out", href: VIEW.SignOutView, icon: "log-out" },

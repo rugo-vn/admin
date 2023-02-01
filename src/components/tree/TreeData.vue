@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from "vue";
-import { join } from 'path-browserify';
+import { join } from "path-browserify";
 
 import CloudUploadIcon from "@rugo-vn/vue/dist/ionicons/CloudUploadIcon.vue";
 import TrashIcon from "@rugo-vn/vue/dist/ionicons/TrashIcon.vue";
@@ -8,8 +8,6 @@ import FolderOpenIcon from "@rugo-vn/vue/dist/ionicons/FolderOpenIcon.vue";
 
 import RDialog from "../RDialog.vue";
 
-import { DIRECTORY_MIME } from "../../constants.js";
-import { FsId } from "../../utils.js";
 import { useApiStore } from "../../stores/api";
 import FileExplorer from "./FileExplorer.vue";
 import { useSelectionStore } from "../../stores/selection";
@@ -33,9 +31,9 @@ const removeSelected = async () => {
     return;
 
   let no = 0;
-  for (let id of selectionStore.selected) {
+  for (let entryPath of selectionStore.selected) {
     try {
-      await apiStore.remove(props.driveName, id);
+      await apiStore.drive.remove(props.driveName, entryPath);
       no++;
     } catch (err) {
       console.error(err);

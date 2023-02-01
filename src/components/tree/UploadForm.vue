@@ -1,7 +1,7 @@
 <script setup>
 import DocumentTextIcon from "@rugo-vn/vue/dist/ionicons/DocumentTextIcon.vue";
 import { ref } from "vue";
-import { join } from 'path-browserify';
+import { join } from "path-browserify";
 
 import { useApiStore } from "../../stores/api.js";
 

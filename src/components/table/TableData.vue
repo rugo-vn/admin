@@ -73,7 +73,11 @@ const removeSelected = async () => {
 <template>
   <div class="table-data">
     <RDialog :label="false" ref="dataForm">
-      <DataForm mode="create" :tableName="tableName" @update:value="updateDataForm" />
+      <DataForm
+        mode="create"
+        :tableName="tableName"
+        @update:value="updateDataForm"
+      />
     </RDialog>
 
     <div class="toolbar mb-4">

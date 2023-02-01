@@ -31,13 +31,8 @@ syncValue();
   <RHeading>{{ appStore.view }}</RHeading>
 
   <RPanel>
-    <TreeData
-      v-if="driveConfig"
-      :driveName="driveName"
-    />
+    <TreeData v-if="driveConfig" :driveName="driveName" />
 
-    <div v-else class="text-center italic">
-      Drive is not found.
-    </div>
+    <div v-else class="text-center italic">Drive is not found.</div>
   </RPanel>
 </template>

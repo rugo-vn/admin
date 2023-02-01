@@ -13,14 +13,17 @@ apiStore.http.init();
 const startLoad = async () => {
   await apiStore.load();
   isFirstLoad.value = false;
-}
+};
 
 startLoad();
 </script>
 
 <template>
   <RouterView v-if="!isFirstLoad" />
-  <div v-else class="w-full h-full fixed flex justify-center items-center pointer-events-none z-40">
+  <div
+    v-else
+    class="w-full h-full fixed flex justify-center items-center pointer-events-none z-40"
+  >
     <RLoader class="w-[4rem] h-[4rem]" />
   </div>
   <ScreenLoader v-if="apiStore.http.isLoading" />

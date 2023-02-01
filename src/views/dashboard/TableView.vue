@@ -33,13 +33,8 @@ syncValue();
   <RHeading>{{ appStore.view }}</RHeading>
 
   <RPanel>
-    <TableData
-      v-if="localSchema"
-      :tableName="tableName"
-    />
+    <TableData v-if="localSchema" :tableName="tableName" />
 
-    <div v-else class="text-center italic">
-      Table is not found.
-    </div>
+    <div v-else class="text-center italic">Table is not found.</div>
   </RPanel>
 </template>

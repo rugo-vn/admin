@@ -28,7 +28,11 @@ const saveForm = async () => {
   }
 
   if (props.mode === "edit" && props.id) {
-    const { data } = await apiStore.table.update(props.tableName, props.id, form);
+    const { data } = await apiStore.table.update(
+      props.tableName,
+      props.id,
+      form
+    );
     apiStore.http.pushNotice({
       type: "success",
       title: "Updated",

@@ -1,8 +1,8 @@
 <script setup>
 import { useRouter } from "vue-router";
-import { VIEW } from '../../constants.js';
-import { useApiStore } from '../../stores/api.js';
-import { useAppStore } from '../../stores/app.js';
+import { VIEW } from "../../constants.js";
+import { useApiStore } from "../../stores/api.js";
+import { useAppStore } from "../../stores/app.js";
 
 const appStore = useAppStore();
 const apiStore = useApiStore();
@@ -19,6 +19,4 @@ apiStore.http.pushNotice({
 
 router.push(VIEW.SignInView);
 </script>
-<template>
-  Signing out...
-</template>
+<template>Signing out...</template>
