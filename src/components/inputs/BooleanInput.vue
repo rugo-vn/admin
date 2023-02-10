@@ -4,7 +4,6 @@ import { ref, watch } from "vue";
 
 import { useSchemaStore } from "../../stores/schema.js";
 import { formatLabel } from "../../utils.js";
-import RCheckbox from "../RCheckbox.vue";
 
 const props = defineProps([
   "value",
@@ -48,6 +47,7 @@ syncValue();
     <RCheckbox
       v-if="edit"
       class="my-0"
+      variant="primary"
       :modelValue="localValue"
       :disabled="disabled"
       @update:modelValue="updateValue"

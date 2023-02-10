@@ -1,16 +1,13 @@
 <script setup>
 import { reactive, ref, watch } from "vue";
-import { useRouter } from "vue-router";
 
 import MenuIcon from "@rugo-vn/vue/dist/ionicons/MenuIcon.vue";
 import SettingsIcon from "@rugo-vn/vue/dist/ionicons/SettingsIcon.vue";
 
 import { VIEW } from "../constants.js";
 import { useAppStore } from "../stores/app.js";
-import { useApiStore } from "../stores/api.js";
 import { useSchemaStore } from "../stores/schema.js";
 import { formatLabel } from "../utils.js";
-import RSideNav from "../components/RSideNav.vue";
 
 const appStore = useAppStore();
 const schemaStore = useSchemaStore();

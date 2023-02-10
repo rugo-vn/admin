@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 
 import CreateIcon from "@rugo-vn/vue/dist/ionicons/CreateIcon.vue";
 import TrashIcon from "@rugo-vn/vue/dist/ionicons/TrashIcon.vue";
@@ -7,7 +7,6 @@ import TrashIcon from "@rugo-vn/vue/dist/ionicons/TrashIcon.vue";
 import { useApiStore } from "../../stores/api";
 
 import DataExplorer from "./DataExplorer.vue";
-import RDialog from "../RDialog.vue";
 import DataForm from "./DataForm.vue";
 import { useSelectionStore } from "../../stores/selection.js";
 

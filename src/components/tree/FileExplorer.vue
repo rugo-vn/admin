@@ -1,14 +1,16 @@
 <script setup>
+import { computed, ref, watch } from "vue";
+
 import FolderIcon from "@rugo-vn/vue/dist/ionicons/FolderIcon.vue";
 import DocumentTextIcon from "@rugo-vn/vue/dist/ionicons/DocumentTextIcon.vue";
-import { computed, ref, watch } from "vue";
+import ImageIcon from "@rugo-vn/vue/dist/ionicons/ImageIcon.vue";
+
 import { useApiStore } from "../../stores/api.js";
 import { useSelectionStore } from "../../stores/selection.js";
 import { DIRECTORY_MIME } from "../../constants.js";
-import RCheckbox from "../RCheckbox.vue";
-import { FsId, download } from "../../utils.js";
+import { download } from "../../utils.js";
 import RBreadcrumb from "../RBreadcrumb.vue";
-import { join } from "path-browserify";
+import { join, basename, dirname, parse } from "path-browserify";
 import DropDown from "../DropDown.vue";
 
 const props = defineProps(["mode", "driveName", "parent"]);
@@ -86,11 +88,71 @@ const updateParent = (value) => {
 };
 
 const handleAction = async (name, item) => {
+  const pp = parse(item.path);
+
   let res;
+  let newName;
+
   switch (name) {
     case "download":
       res = await apiStore.drive.download(props.driveName, item.path);
       download(res, item.name);
+
+      break;
+
+    case "rename":
+      newName = window.prompt("Enter new name: ", basename(item.path));
+      if (!newName) break;
+
+      res = await apiStore.drive.move(
+        props.driveName,
+        item.path,
+        join(dirname(item.path), newName)
+      );
+      apiStore.http.pushNotice({
+        type: "success",
+        title: `Renamed`,
+        detail: "You renamed an entry",
+      });
+      syncValue();
+      break;
+
+    case "compress":
+      newName = window.prompt(
+        "Enter compressed file name: ",
+        basename(item.path) + ".zip"
+      );
+      if (!newName) break;
+
+      res = await apiStore.drive.compress(
+        props.driveName,
+        item.path,
+        join(dirname(item.path), newName)
+      );
+      apiStore.http.pushNotice({
+        type: "success",
+        title: `Compressed`,
+        detail: "You compressed an entry",
+      });
+      syncValue();
+
+      break;
+
+    case "extract":
+      newName = window.prompt("Extract file to new directory: ", pp.name);
+      if (!newName) break;
+
+      res = await apiStore.drive.extract(
+        props.driveName,
+        item.path,
+        join(dirname(item.path), newName)
+      );
+      apiStore.http.pushNotice({
+        type: "success",
+        title: `Extracted`,
+        detail: "You extracted an entry",
+      });
+      syncValue();
 
       break;
 
@@ -104,15 +166,6 @@ const handleAction = async (name, item) => {
       });
       syncValue();
       break;
-
-    default:
-      res = await apiStore.x(name, props.driveName, item.path);
-      apiStore.pushNotice({
-        type: "primary",
-        title: `${name}`,
-        detail: res.data,
-      });
-      syncValue();
   }
 };
 
@@ -137,6 +190,7 @@ syncValue();
           v-if="mode !== 'single'"
         >
           <RCheckbox
+            variant="primary"
             :indeterminate="selectionStore.isAnySelected(data.length)"
             :modelValue="selectionStore.isAllSelected(data.length)"
             @update:modelValue="toggleSelectAll($event)"
@@ -160,6 +214,7 @@ syncValue();
         >
           <td class="py-2 px-4 break-words" v-if="mode !== 'single'">
             <RCheckbox
+              variant="primary"
               class="block h-full flex"
               type="checkbox"
               :modelValue="isSelected(item.path)"
@@ -174,7 +229,11 @@ syncValue();
             <button class="flex items-center">
               <component
                 :is="
-                  item.mime === DIRECTORY_MIME ? FolderIcon : DocumentTextIcon
+                  item.mime === DIRECTORY_MIME
+                    ? FolderIcon
+                    : item.mime.indexOf('image') === 0
+                    ? ImageIcon
+                    : DocumentTextIcon
                 "
                 class="mr-3 text-lg"
                 type="outline"
@@ -199,10 +258,11 @@ syncValue();
           <td class="w-[1.75rem]" v-if="mode !== 'single'">
             <DropDown
               :actions="[
-                'compress',
-                'remove',
                 ...(item.mime === 'application/zip' ? ['extract'] : []),
                 ...(item.mime !== DIRECTORY_MIME ? ['download'] : []),
+                'compress',
+                'rename',
+                'remove',
               ]"
               @do:action="handleAction($event, item)"
             />

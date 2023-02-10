@@ -276,6 +276,42 @@ const useDriveStore = defineStore("drive", () => {
 
       return http.handleResponse(res);
     },
+
+    async move(driveName, from, to) {
+      const req = http.createHttp();
+
+      http.startLoad();
+      const res = await req.get(
+        join(API.drive, driveName, `move?${qs.stringify({ from, to })}`)
+      );
+      http.endLoad();
+
+      return http.handleResponse(res);
+    },
+
+    async compress(driveName, from, to) {
+      const req = http.createHttp();
+
+      http.startLoad();
+      const res = await req.get(
+        join(API.drive, driveName, `compress?${qs.stringify({ from, to })}`)
+      );
+      http.endLoad();
+
+      return http.handleResponse(res);
+    },
+
+    async extract(driveName, from, to) {
+      const req = http.createHttp();
+
+      http.startLoad();
+      const res = await req.get(
+        join(API.drive, driveName, `extract?${qs.stringify({ from, to })}`)
+      );
+      http.endLoad();
+
+      return http.handleResponse(res);
+    },
   };
 });
 

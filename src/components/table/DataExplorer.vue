@@ -6,11 +6,9 @@ import { useSelectionStore } from "../../stores/selection.js";
 import { DEFAULT_ID_FIELD } from "../../constants.js";
 import { formatLabel } from "../../utils.js";
 
-import RCheckbox from "../RCheckbox.vue";
 import AutoInput from "../inputs/AutoInput.vue";
 import { useApiStore } from "../../stores/api.js";
 import DropDown from "../DropDown.vue";
-import RDialog from "../RDialog.vue";
 import DataForm from "./DataForm.vue";
 import { useRouter } from "vue-router";
 import RPagination from "../RPagination.vue";
@@ -163,6 +161,7 @@ syncValue();
           :key="`head-${label}`"
         >
           <RCheckbox
+            variant="primary"
             :indeterminate="selectionStore.isAnySelected(data.length)"
             :modelValue="selectionStore.isAllSelected(data.length)"
             @update:modelValue="toggleSelectAll($event)"
@@ -188,6 +187,7 @@ syncValue();
             v-for="label in localLables"
           >
             <RCheckbox
+              variant="primary"
               class="block h-full flex"
               v-if="label === 'id'"
               type="checkbox"

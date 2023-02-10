@@ -1,12 +1,12 @@
 <script setup>
 import { ref, watch } from "vue";
-import { join } from "path-browserify";
+import { join, basename } from "path-browserify";
 
 import CloudUploadIcon from "@rugo-vn/vue/dist/ionicons/CloudUploadIcon.vue";
 import TrashIcon from "@rugo-vn/vue/dist/ionicons/TrashIcon.vue";
 import FolderOpenIcon from "@rugo-vn/vue/dist/ionicons/FolderOpenIcon.vue";
-
-import RDialog from "../RDialog.vue";
+import CutIcon from "@rugo-vn/vue/dist/ionicons/CutIcon.vue";
+import ClipboardIcon from "@rugo-vn/vue/dist/ionicons/ClipboardIcon.vue";
 
 import { useApiStore } from "../../stores/api";
 import FileExplorer from "./FileExplorer.vue";
@@ -21,6 +21,7 @@ const selectionStore = useSelectionStore();
 const uploadForm = ref(null);
 const fileExplorer = ref(null);
 const parent = ref("/");
+const moveList = ref([]);
 
 const removeSelected = async () => {
   if (
@@ -87,6 +88,43 @@ const syncValue = async () => {
     fileExplorer.value.sync();
   }
 };
+
+const selectToMove = () => {
+  moveList.value = [...selectionStore.selected];
+  selectionStore.clear();
+
+  apiStore.http.pushNotice({
+    type: "success",
+    title: "Ready to move",
+    detail: `You have ${moveList.value.length} item(s) are ready to move.`,
+  });
+};
+
+const moveHere = async () => {
+  let count = 0;
+
+  for (const entryPath of moveList.value) {
+    try {
+      await apiStore.drive.move(
+        props.driveName,
+        entryPath,
+        join(parent.value, basename(entryPath))
+      );
+    } catch (_) {
+      // pass
+    }
+  }
+
+  apiStore.http.pushNotice({
+    type: "success",
+    title: "Moved",
+    detail: `Moved ${count}/${moveList.value.length} item(s).`,
+  });
+
+  moveList.value = [];
+  syncValue();
+};
+
 watch(() => props.driveName, syncValue);
 syncValue();
 </script>
@@ -117,6 +155,29 @@ syncValue();
         @click="createDirectory"
       >
         <FolderOpenIcon class="text-lg" />
+      </RButton>
+
+      <RButton
+        variant="primary"
+        class="justify-center w-8 h-8 px-0 py-0 mr-2"
+        v-if="selectionStore.selected.length"
+        @click="selectToMove"
+      >
+        <CutIcon class="text-lg" />
+      </RButton>
+
+      <RButton
+        variant="primary"
+        class="justify-center h-8 px-2 py-0 mr-2"
+        v-if="moveList.length"
+        @click="moveHere"
+      >
+        <ClipboardIcon class="text-lg" />
+        <div
+          class="bg-primary-600 px-2 ml-2 rounded pt-[.25rem] items-center inline-flex font-semibold text-xs"
+        >
+          {{ moveList.length }}
+        </div>
       </RButton>
 
       <RButton

@@ -1,6 +1,6 @@
 {
   "name": "@rugo-vn/admin",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "type": "module",
   "scripts": {
     "vite": "vite",
@@ -18,7 +18,7 @@
     "vue-router": "^4.1.5"
   },
   "devDependencies": {
-    "@rugo-vn/vue": "^1.0.3-beta.2",
+    "@rugo-vn/vue": "^1.0.3",
     "@rushstack/eslint-patch": "^1.1.4",
     "@testing-library/vue": "^6.6.1",
     "@vitejs/plugin-vue": "^3.0.3",
