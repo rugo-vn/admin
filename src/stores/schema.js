@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import objectPath from "object-path";
+import { clone } from "ramda";
 
 export const useSchemaStore = defineStore("schema", {
   state: () => ({
@@ -10,9 +11,9 @@ export const useSchemaStore = defineStore("schema", {
 
   actions: {
     setSchemas(schemas) {
-      this.schemas = {
-        ...schemas,
-      };
+      this.schemas = {};
+
+      for (const schema of schemas) this.schemas[schema.name] = clone(schema);
     },
 
     getSchema(tableName, path = "") {
@@ -28,11 +29,11 @@ export const useSchemaStore = defineStore("schema", {
         if (!currentSchema)
           throw new Error(`Could not find schema for "${schemaPath}"`);
 
-        if (!currentSchema.type || currentSchema.type === "object") {
+        if (!currentSchema.type || currentSchema.type === "Object") {
           schemaPath += `.properties.${name}`;
-        } else if (currentSchema.type === "array") {
+        } else if (currentSchema.type === "Array") {
           schemaPath += `.items`;
-        } else if (currentSchema.type === "rich") {
+        } else if (currentSchema.type === "Rich") {
           schemaPath += `.image`;
         } else {
           throw new Error(`Could not find schema for "${schemaPath}.${name}"`);

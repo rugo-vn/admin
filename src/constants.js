@@ -1,4 +1,4 @@
-export const DELAY_SEARCH = 1000;
+export const DELAY_INPUT = 500;
 
 export const DEFAULT_ID_FIELD = "id";
 

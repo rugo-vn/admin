@@ -1,13 +1,38 @@
 import { path } from "ramda";
 import { join } from "path-browserify";
 import { Buffer } from "buffer";
+import pluralize from "pluralize";
+import camelcase from "camelcase";
+import { DELAY_INPUT } from "./constants";
 
 const INVALID_PATH_REGEX = /[<>:"\\|?*\u0000-\u001F]/g; // eslint-disable-line
 
-export const formatLabel = (label) => {
+export const formatLabel = (label, isSingular = false) => {
+  if (!isSingular) label = pluralize.singular(label);
+  label = camelcase(label, { pascalCase: true });
   label = label.replace(/([A-Z])/g, " $1");
-  label = label.charAt(0).toUpperCase() + label.slice(1);
-  return label;
+  return label.trim();
+};
+
+export const createDelayCall = () => {
+  let timeout;
+  let lastArgs;
+
+  return (fn, now = false, ...args) => {
+    if (now && timeout) {
+      fn(...(args.length ? args : lastArgs));
+      clearTimeout(timeout);
+      return;
+    }
+
+    clearTimeout(timeout);
+    lastArgs = args;
+
+    timeout = setTimeout(() => {
+      clearTimeout(timeout);
+      fn(...args);
+    }, DELAY_INPUT);
+  };
 };
 
 // base64url
@@ -56,7 +81,7 @@ function decode(base64url, encoding) {
 function toBase64(base64url) {
   base64url = base64url.toString();
 
-  return padString(base64url).replace(/\-/g, "+").replace(/_/g, "/");
+  return padString(base64url).replace(/-/g, "+").replace(/_/g, "/");
 }
 
 function fromBase64(base64) {
@@ -103,7 +128,7 @@ export function FsId(inputId) {
   // try decode path
   const decodedId = base64url.decode(workingId);
   if (INVALID_PATH_REGEX.test(decodedId)) {
-    throw new RugoException("Wrong input id");
+    throw new Error("Wrong input id");
   }
 
   // assign id

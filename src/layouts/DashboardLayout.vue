@@ -1,9 +1,10 @@
 <script setup>
-import { reactive, ref, watch } from "vue";
+import { reactive, ref, watch, markRaw } from "vue";
 
 import MenuIcon from "@rugo-vn/vue/dist/ionicons/MenuIcon.vue";
 import SettingsIcon from "@rugo-vn/vue/dist/ionicons/SettingsIcon.vue";
 
+import IconLockup from "../components/IconLockup.vue";
 import { VIEW } from "../constants.js";
 import { useAppStore } from "../stores/app.js";
 import { useSchemaStore } from "../stores/schema.js";
@@ -53,6 +54,10 @@ const loadData = async () => {
       { name: "Sign out", href: VIEW.SignOutView, icon: "log-out" },
     ]
   );
+
+  for (const item of navigations) {
+    item.icon = [markRaw(IconLockup), item.icon];
+  }
 
   changeView();
   isLoad.value = true;
