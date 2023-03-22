@@ -110,7 +110,7 @@ syncValue();
 
         <button
           v-if="value"
-          class="rounded-full bg-primary-500 text-white py-1 px-3 absolute top-2 left-2 inline-flex items-center whitespace-nowrap max-w-[calc(100%-1rem)] overflow-hidden block"
+          class="rounded-full bg-primary-500 text-white py-1 px-3 absolute top-2 left-2 items-center whitespace-nowrap max-w-[calc(100%-1rem)] overflow-hidden block"
           @click="updateValue(undefined)"
         >
           <span class="text-ellipsis overflow-hidden max-w-[calc(100%-1rem)]">

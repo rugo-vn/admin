@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { nextTick, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import TreeData from "../../components/tree/TreeData.vue";
 
@@ -17,9 +17,13 @@ const driveConfig = ref({});
 const syncValue = async () => {
   if (!route.params.driveName) return;
 
-  driveName.value = route.params.driveName;
-  driveConfig.value = schemaStore.getDrive(driveName.value);
-  appStore.view = formatLabel(driveName.value);
+  driveName.value = null;
+
+  nextTick(() => {
+    driveName.value = route.params.driveName;
+    driveConfig.value = schemaStore.getDrive(driveName.value);
+    appStore.view = formatLabel(driveName.value);
+  });
 };
 
 watch(() => route.params.driveName, syncValue);
@@ -28,11 +32,13 @@ syncValue();
 </script>
 
 <template>
-  <RHeading>{{ appStore.view }}</RHeading>
+  <div v-if="driveName">
+    <RHeading>{{ appStore.view }}</RHeading>
 
-  <RPanel>
-    <TreeData v-if="driveConfig" :driveName="driveName" />
+    <RPanel>
+      <TreeData v-if="driveConfig" :driveName="driveName" />
 
-    <div v-else class="text-center italic">Drive is not found.</div>
-  </RPanel>
+      <div v-else class="text-center italic">Drive is not found.</div>
+    </RPanel>
+  </div>
 </template>

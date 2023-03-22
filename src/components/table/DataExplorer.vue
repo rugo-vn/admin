@@ -47,6 +47,7 @@ const syncValue = async () => {
 
   const { data: result, meta } = await apiStore.table.find(props.tableName, {
     skip: skip.value,
+    sort: { createdAt: -1 },
   });
 
   data.value = result;
@@ -198,7 +199,7 @@ syncValue();
           >
             <RCheckbox
               variant="primary"
-              class="block h-full flex"
+              class="h-full flex"
               v-if="label === 'id'"
               type="checkbox"
               :modelValue="isSelected(row[DEFAULT_ID_FIELD])"

@@ -1,4 +1,5 @@
 export { default as BooleanInput } from "./BooleanInput.vue";
+export { default as DateInput } from "./DateInput.vue";
 export { default as TextInput } from "./TextInput.vue";
 export { default as NumberInput } from "./NumberInput.vue";
 export { default as ListInput } from "./ListInput.vue";

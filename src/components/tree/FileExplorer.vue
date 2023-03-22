@@ -198,7 +198,7 @@ syncValue();
         </th>
         <th class="py-2 px-4 font-normal text-xs text-left uppercase">Name</th>
         <th
-          class="py-2 px-4 font-normal text-xs text-left uppercase w-32 text-right hidden md:table-cell"
+          class="py-2 px-4 font-normal text-xs uppercase w-40 text-right hidden md:table-cell"
         >
           Mime
         </th>
@@ -215,7 +215,7 @@ syncValue();
           <td class="py-2 px-4 break-words" v-if="mode !== 'single'">
             <RCheckbox
               variant="primary"
-              class="block h-full flex"
+              class="h-full flex"
               type="checkbox"
               :modelValue="isSelected(item.path)"
               @update:modelValue="toggleSelect(item.path, $event)"
@@ -231,7 +231,7 @@ syncValue();
                 :is="
                   item.mime === DIRECTORY_MIME
                     ? FolderIcon
-                    : item.mime.indexOf('image') === 0
+                    : (item.mime || '').indexOf('image') === 0
                     ? ImageIcon
                     : DocumentTextIcon
                 "
@@ -250,7 +250,7 @@ syncValue();
           </td>
 
           <td
-            class="py-2 px-4 text-xs text-gray-500 w-32 text-right hidden md:table-cell"
+            class="py-2 px-4 text-xs text-gray-500 w-40 text-right hidden md:table-cell"
           >
             {{ item.mime }}
           </td>

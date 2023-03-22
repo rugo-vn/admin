@@ -16,14 +16,18 @@ const view = computed(() => {
     //   input = Inputs.BooleanInput;
     //   break;
 
+    case "Date":
+      input = Inputs.DateInput;
+      break;
+
     case "String":
     case "Text":
       input = Inputs.TextInput;
       break;
 
-    // case "Number":
-    //   input = Inputs.NumberInput;
-    //   break;
+    case "Number":
+      input = Inputs.NumberInput;
+      break;
 
     case "Array":
       input = Inputs.ListInput;

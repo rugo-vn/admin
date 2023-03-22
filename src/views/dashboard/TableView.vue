@@ -3,7 +3,6 @@ import { nextTick, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import TableData from "../../components/table/TableData.vue";
-import TreeData from "../../components/tree/TreeData.vue";
 
 import { useAppStore } from "../../stores/app.js";
 import { useSchemaStore } from "../../stores/schema.js";

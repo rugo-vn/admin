@@ -15,7 +15,7 @@ defineEmits(["do:action"]);
       class="hidden peer-focus:block bg-white drop-shadow rounded absolute mx-2 z-10 overflow-hidden right-0 w-fit"
     >
       <button
-        class="px-3 py-2 border-b last:border-none capitalize"
+        class="px-3 py-2 border-b last:border-none capitalize w-full text-left"
         v-for="action in actions"
         :key="action"
         @mousedown="$emit('do:action', action)"
