@@ -14,6 +14,7 @@ import { useRouter } from "vue-router";
 import RPagination from "../RPagination.vue";
 
 const props = defineProps(["tableName", "open"]);
+const emit = defineEmits(["remove"]);
 
 const selectionStore = useSelectionStore();
 const schemaStore = useSchemaStore();
@@ -101,6 +102,12 @@ const handleAction = (name, item) => {
       dataFormMode.value = "edit";
       dataForm.value.show();
       break;
+
+    case "remove":
+      selectionStore.clear();
+      selectionStore.select(item.id);
+      emit("remove");
+      break;
   }
 };
 
@@ -169,11 +176,13 @@ syncValue();
           />
 
           <div v-else>
-            {{ formatLabel(label) }}
+            {{ formatLabel(label, true) }}
           </div>
         </th>
 
-        <th class="head-_tool font-normal text-xs text-left uppercase"></th>
+        <th class="head-_tool font-normal text-xs text-left uppercase">
+          <DropDown :actions="['Columns']" @do:action="" />
+        </th>
       </thead>
 
       <tbody>
@@ -184,6 +193,7 @@ syncValue();
         >
           <td
             :class="`cell-${label} py-2 px-4 break-words`"
+            :key="`cell-${label}`"
             v-for="label in localLables"
           >
             <RCheckbox
@@ -197,12 +207,9 @@ syncValue();
             <slot v-else name="cell()" v-bind="{ row, label }">
               <AutoInput
                 class="cursor-pointer select-none"
-                :value="row"
-                :model="tableName"
-                :path="label"
+                :schema="localSchema.properties[label]"
+                :value="row[label]"
                 :inline="true"
-                :edit="false"
-                @click="handleClick(row)"
               />
             </slot>
           </td>
@@ -213,6 +220,7 @@ syncValue();
                 ...(open && typeof open === 'function' ? ['open'] : []),
                 'edit',
                 'details',
+                'remove',
               ]"
               @do:action="handleAction($event, row)"
             />
@@ -220,6 +228,13 @@ syncValue();
         </tr>
       </tbody>
     </table>
+
+    <div
+      v-if="data.length === 0"
+      class="text-center italic text-gray-300 py-2 px-3 bg-secondary-50 border-b"
+    >
+      Empty!
+    </div>
 
     <RPagination
       class="mt-4"

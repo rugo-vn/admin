@@ -1,62 +1,54 @@
 <script setup>
 import { computed } from "vue";
-import { useSchemaStore } from "../../stores/schema.js";
 import * as Inputs from "./index.js";
 
-const props = defineProps([
-  "label",
-  "value",
-  "model",
-  "path",
-  "inline",
-  "edit",
-  "disabled",
-]);
+const props = defineProps(["name", "schema", "value", "inline"]);
 
-defineEmits(["update:value"]);
-
-const schemaStore = useSchemaStore();
+defineEmits(["updateValue"]);
 
 const view = computed(() => {
-  const schema = schemaStore.getSchema(props.model, props.path);
-
   let input = null;
 
-  switch (schema.type) {
-    case "boolean":
-      input = Inputs.BooleanInput;
-      break;
+  const schema = props.schema || {};
 
-    case "string":
-    case "text":
+  switch (schema.type) {
+    // case "Boolean":
+    //   input = Inputs.BooleanInput;
+    //   break;
+
+    case "String":
+    case "Text":
       input = Inputs.TextInput;
       break;
 
-    case "number":
-      input = Inputs.NumberInput;
-      break;
+    // case "Number":
+    //   input = Inputs.NumberInput;
+    //   break;
 
-    case "array":
+    case "Array":
       input = Inputs.ListInput;
       break;
 
-    case "object":
-      input = Inputs.ObjectInput;
+    case "Object":
+      if (Object.keys(schema.properties || {}).length)
+        input = Inputs.ObjectInput;
+      else input = Inputs.JsonInput;
+
       break;
 
-    case "relation":
+    case "Id":
       input = Inputs.RelationInput;
       break;
 
-    case "file":
-      input = Inputs.FileInput;
-      break;
+    // case "File":
+    //   input = Inputs.FileInput;
+    //   break;
 
-    case "rich":
-      input = Inputs.RichInput;
-      break;
+    // case "Rich":
+    //   input = Inputs.RichInput;
+    //   break;
 
-    case "json":
+    case "Json":
       input = Inputs.JsonInput;
       break;
   }
@@ -68,13 +60,10 @@ const view = computed(() => {
 <template>
   <component
     :is="view"
-    :label="label"
-    :value="value"
-    :model="model"
-    :path="path"
+    :name="name"
+    :schema="schema"
     :inline="inline"
-    :edit="edit"
-    :disabled="disabled"
-    @update:value="$emit('update:value', $event)"
+    :value="value"
+    @updateValue="$emit('updateValue', $event)"
   />
 </template>

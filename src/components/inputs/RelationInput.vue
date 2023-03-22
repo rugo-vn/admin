@@ -1,62 +1,31 @@
 <script setup>
-import objectPath from "object-path";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 
 import CloseIcon from "@rugo-vn/vue/dist/ionicons/CloseIcon.vue";
 
 import { useSchemaStore } from "../../stores/schema.js";
 import { useApiStore } from "../../stores/api.js";
-import { formatLabel } from "../../utils.js";
-import { DELAY_SEARCH } from "../../constants.js";
+import { DELAY_INPUT } from "../../constants.js";
+import BaseInput from "./BaseInput.vue";
+import IdValue from "../values/IdValue.vue";
 
-const props = defineProps([
-  "label",
-  "value",
-  "path",
-  "model",
-  "inline",
-  "edit",
-  "disabled",
-]);
-const emit = defineEmits(["update:value"]);
+const props = defineProps(["schema"]);
 
 const schemaStore = useSchemaStore();
 const apiStore = useApiStore();
 
 const isLoading = ref(false);
-const localValue = ref("");
-const localSchema = ref({});
-const localLabel = ref("");
 const results = ref([]);
 const localItem = ref(null);
 
-let firstField = "_id";
+let lookupField = "id";
 let refSchema = null;
 
 const syncValue = async () => {
-  localValue.value = objectPath.get(props.value, props.path);
-  localSchema.value = schemaStore.getSchema(props.model, props.path);
-  localLabel.value = props.path.split(".").slice(-1)[0];
-
-  if (localSchema.value.to) {
-    refSchema = schemaStore.getSchema(localSchema.value.to);
-    firstField = Object.keys(refSchema.properties || {})[0] || "_id";
+  if (props.schema.ref) {
+    refSchema = schemaStore.getSchema(props.schema.ref);
+    lookupField = props.schema.lookup || "id";
   }
-
-  if (
-    localValue.value &&
-    refSchema &&
-    !(localItem.value && localItem.value._id === localValue.value)
-  ) {
-    const { data: item } = await apiStore.get(refSchema.name, localValue.value);
-    localItem.value = item;
-  }
-};
-
-const updateValue = (newValue) => {
-  emit("update:value", (o) =>
-    objectPath.set(o, props.path, newValue || undefined)
-  );
 };
 
 let searchTimeout;
@@ -69,7 +38,7 @@ const search = async (text) => {
   }
 
   isLoading.value = true;
-  const { data } = await apiStore.find(refSchema.name, {
+  const { data } = await apiStore.table.find(refSchema.name, {
     search: text,
     limit: 5,
   });
@@ -82,7 +51,7 @@ const preSearch = (text) => {
   results.value = [];
 
   clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => search(text), DELAY_SEARCH);
+  searchTimeout = setTimeout(() => search(text), DELAY_INPUT);
 };
 
 const clearSearch = (e) => {
@@ -91,23 +60,17 @@ const clearSearch = (e) => {
   isLoading.value = false;
 };
 
-const selectValue = (item) => {
-  localItem.value = item;
-  updateValue(item ? item._id : undefined);
-};
-
-watch(() => [props.value, props.path, props.model], syncValue, { deep: true });
-
 syncValue();
 </script>
 
 <template>
-  <div>
-    <label v-if="!inline && localLabel" class="block uppercase mb-2">{{
-      formatLabel(localLabel)
-    }}</label>
-    <div v-if="edit">
-      <div v-if="localSchema.to" class="relative">
+  <BaseInput>
+    <template #inlineValue="{ value }">
+      <IdValue :value="value" :schema="schema" />
+    </template>
+
+    <template v-slot="{ value, updateValue }">
+      <div v-if="schema.ref" class="relative">
         <input
           class="block border w-full p-3 rounded-lg peer outline-none focus:border-black dark:bg-gray-900 dark:border-gray-500 dark:focus:border-primary-500 peer"
           :placeholder="localItem ? '' : `Search something`"
@@ -132,9 +95,12 @@ syncValue();
               v-for="item in results"
               :key="item._id"
               class="block w-full border-b last:border-none text-left py-2 px-3 hover:bg-gray-50"
-              @mousedown="selectValue(item)"
+              @mousedown="updateValue(item.id)"
             >
-              {{ item[firstField] }}
+              <IdValue
+                :item="item"
+                :lookup="item[lookupField] ? lookupField : 'id'"
+              />
             </button>
           </div>
           <div v-else class="text-center italic text-gray-500 py-2 px-3">
@@ -143,12 +109,12 @@ syncValue();
         </div>
 
         <button
-          v-if="localItem"
+          v-if="value"
           class="rounded-full bg-primary-500 text-white py-1 px-3 absolute top-2 left-2 inline-flex items-center whitespace-nowrap max-w-[calc(100%-1rem)] overflow-hidden block"
-          @click="selectValue()"
+          @click="updateValue(undefined)"
         >
           <span class="text-ellipsis overflow-hidden max-w-[calc(100%-1rem)]">
-            {{ localItem[firstField] }}
+            <IdValue :value="value" :schema="schema" />
           </span>
           <CloseIcon class="text-base ml-2" />
         </button>
@@ -157,13 +123,9 @@ syncValue();
       <RInput
         v-else
         class="my-0"
-        :modelValue="localValue"
-        :disabled="disabled"
+        :modelValue="value"
         @update:modelValue="updateValue"
       />
-    </div>
-    <div v-else>
-      {{ localItem ? localItem[firstField] : localValue }}
-    </div>
-  </div>
+    </template>
+  </BaseInput>
 </template>

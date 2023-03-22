@@ -1,112 +1,96 @@
 <script setup>
-import objectPath from "object-path";
-import { ref, watch } from "vue";
-import AddIcon from "@rugo-vn/vue/dist/ionicons/AddIcon.vue";
-import TrashIcon from "@rugo-vn/vue/dist/ionicons/TrashIcon.vue";
+import { clone } from "ramda";
+import uniqid from "uniqid";
+import { ref } from "vue";
 
-import { useSchemaStore } from "../../stores/schema.js";
-import { formatLabel } from "../../utils.js";
+import ComplexValue from "../values/ComplexValue.vue";
+import EmptyValue from "../values/EmptyValue.vue";
 import AutoInput from "./AutoInput.vue";
+import BaseInput from "./BaseInput.vue";
 
-const props = defineProps([
-  "label",
-  "value",
-  "path",
-  "model",
-  "inline",
-  "edit",
-  "disabled",
-]);
-const emit = defineEmits(["update:value"]);
+defineProps(["schema"]);
 
-const schemaStore = useSchemaStore();
+const id = uniqid();
 
-const localValue = ref([]);
-const localSchema = ref({});
+const isCreate = ref(false);
 
-const localLabel = ref("");
+const removeItem = (value, index) => {
+  if (index >= value.length) {
+    isCreate.value = false;
+    return value;
+  }
 
-const syncValue = () => {
-  localValue.value = objectPath.get(props.value, props.path) || [];
-  localSchema.value = schemaStore.getSchema(props.model, props.path);
+  const nextValue = clone(value);
+  nextValue.splice(index, 1);
 
-  localLabel.value = props.path.split(".").slice(-1)[0];
+  return nextValue;
 };
 
-const addItem = () => {
-  emit("update:value", (o) => objectPath.push(o, props.path, null));
+const localUpdateValue = (fn, lastValue, index, newItem) => {
+  lastValue = clone(lastValue || []);
+
+  if (index >= lastValue.length) {
+    lastValue.push(newItem);
+    isCreate.value = false;
+  } else {
+    lastValue[index] = newItem;
+  }
+
+  fn(lastValue);
 };
-
-const removeItem = (index) => {
-  emit("update:value", (o) => objectPath.del(o, `${props.path}.${index}`));
-};
-
-watch(() => [props.value, props.path, props.model], syncValue, { deep: true });
-
-syncValue();
 </script>
 
 <template>
-  <div class="list-input">
-    <div
-      class="list-input-label flex justify-between mb-2 items-center"
-      v-if="!inline"
-    >
-      <label v-if="localLabel" class="uppercase mb-0">{{
-        formatLabel(localLabel)
-      }}</label>
-      <RButton
-        v-if="edit"
-        class="px-1 py-1"
-        variant="primary rounded"
-        @click="addItem"
-      >
-        <AddIcon />
-      </RButton>
-    </div>
-
-    <div
-      v-if="localValue.length === 0"
-      class="border p-1 rounded text-center italic text-gray-500"
-    >
-      Empty
-    </div>
-
-    <template v-if="inline">
-      <span class="bg-secondary-400 text-white px-2 py-1 rounded text-xs"
-        >Complex</span
-      >
+  <BaseInput>
+    <template #inlineValue>
+      <ComplexValue />
     </template>
 
-    <template v-else>
-      <div
-        v-for="(_, index) in localValue"
-        :key="index"
-        class="list-input-values pb-4 pl-4 border-l relative last:pb-0"
-      >
-        <RButton
-          v-if="edit"
-          class="absolute left-[-.7rem] w-[1.4rem] h-[1.3rem] px-0 py-0 rounded text-xs text-center justify-center"
-          variant="danger"
-          @click="removeItem(index)"
-        >
-          <TrashIcon />
-        </RButton>
-        <div>
-          <AutoInput
-            class="list-input-value"
-            :value="value"
-            :model="model"
-            :path="`${path ? path + '.' : ''}${index}`"
-            :inline="inline"
-            :edit="edit"
-            :disabled="disabled"
-            @update:value="$emit('update:value', $event)"
-          />
+    <template v-slot="{ value, updateValue }">
+      <div class="list-input">
+        <template v-if="isCreate || (value && value.length !== 0)">
+          <div
+            v-for="(_, index) in [
+              ...(value || []),
+              ...(isCreate ? [null] : []),
+            ]"
+            :key="`${id}.${index}`"
+            class="list-input-values ml-2.5 mt-2 pl-4 border-l relative last:pb-0"
+          >
+            <RButton
+              class="absolute left-[-.7rem] w-[1.4rem] h-[1.3rem] px-0 py-0 rounded text-xs text-center justify-center"
+              variant="danger"
+              @click="updateValue(removeItem(value, index))"
+            >
+              <TrashIcon />
+            </RButton>
+            <div>
+              <AutoInput
+                class="list-input-value"
+                :schema="schema.items"
+                :value="(value || [])[index]"
+                @updateValue="
+                  localUpdateValue(updateValue, value, index, $event)
+                "
+              />
+            </div>
+          </div>
+        </template>
+
+        <div class="mt-2 flex items-center" v-if="!isCreate">
+          <EmptyValue v-if="!value || value.length === 0" class="mr-2" />
+
+          <RButton
+            class="px-1 py-1"
+            variant="primary rounded"
+            @click="isCreate = true"
+          >
+            <AddIcon />
+          </RButton>
         </div>
       </div>
     </template>
-  </div>
+  </BaseInput>
 </template>
 
 <style lang="scss">

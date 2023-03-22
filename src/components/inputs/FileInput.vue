@@ -113,7 +113,7 @@ syncValue();
 <template>
   <div>
     <label v-if="!inline && localLabel" class="block uppercase mb-2">{{
-      formatLabel(localLabel)
+      formatLabel(localLabel, true)
     }}</label>
     <div v-if="edit">
       <div v-if="localSchema.to" ref="inputBox" class="relative">

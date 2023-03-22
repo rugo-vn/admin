@@ -42,7 +42,7 @@ syncValue();
 <template>
   <div>
     <label v-if="!inline && localLabel" class="block uppercase mb-2">{{
-      formatLabel(localLabel)
+      formatLabel(localLabel, true)
     }}</label>
     <RCheckbox
       v-if="edit"

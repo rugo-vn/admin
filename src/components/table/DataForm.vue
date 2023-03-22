@@ -1,24 +1,28 @@
 <script setup>
-import { reactive, watch } from "vue";
+import { clone, equals } from "ramda";
+import { ref, watch } from "vue";
 import { useApiStore } from "../../stores/api.js";
-import { formatLabel } from "../../utils.js";
+import { useSchemaStore } from "../../stores/schema";
+import { formatLabel } from "../../utils";
 import AutoInput from "../inputs/AutoInput.vue";
+import IdValue from "../values/IdValue.vue";
 
 const props = defineProps(["tableName", "mode", "id"]);
 const emit = defineEmits(["update:value"]);
 
 const apiStore = useApiStore();
+const schemaStore = useSchemaStore();
 
-const form = reactive({});
-const updateDataForm = (set) => set(form);
+const form = ref({});
+const isChangable = ref(false);
 
 const clearForm = () => {
-  for (let key in form) delete form[key];
+  form.value = {};
 };
 
 const saveForm = async () => {
   if (props.mode === "create") {
-    const { data } = await apiStore.table.create(props.tableName, form);
+    const { data } = await apiStore.table.create(props.tableName, form.value);
     apiStore.http.pushNotice({
       type: "success",
       title: "Created",
@@ -31,7 +35,7 @@ const saveForm = async () => {
     const { data } = await apiStore.table.update(
       props.tableName,
       props.id,
-      form
+      form.value
     );
     apiStore.http.pushNotice({
       type: "success",
@@ -48,10 +52,15 @@ const syncValue = async () => {
   if (props.id) {
     clearForm();
     const data = await apiStore.table.get(props.tableName, props.id);
-    for (let key in data) {
-      form[key] = data[key];
-    }
+    form.value = clone(data);
   }
+};
+
+const updateValue = (newValue) => {
+  if (equals(newValue, form.value)) return;
+
+  form.value = clone(newValue);
+  isChangable.value = true;
 };
 
 watch(() => [props.tableName, props.id], syncValue);
@@ -60,23 +69,28 @@ syncValue();
 </script>
 
 <template>
-  <AutoInput
-    class="mb-4 data-form"
-    :value="form"
-    :model="tableName"
-    path=""
-    :inline="false"
-    :edit="mode === 'view' ? false : true"
-    :disabled="apiStore.http.isLoading"
-    @update:value="updateDataForm"
-  />
+  <div v-if="tableName">
+    <div class="flex justify-between mb-4 items-center">
+      <RHeading type="h2" class="mb-0">
+        {{ formatLabel(mode, true) + (mode === "create" ? " a" : " the") }}
+        document
+      </RHeading>
+      <IdValue v-if="id" :value="id" />
+    </div>
 
-  <RButton
-    v-if="mode !== 'view'"
-    variant="primary"
-    class="mr-4"
-    @click="saveForm"
-  >
-    {{ mode === "create" ? "Create" : "Save" }}
-  </RButton>
+    <AutoInput
+      :schema="schemaStore.getSchema(tableName)"
+      :value="form"
+      @updateValue="updateValue"
+    />
+
+    <RButton
+      v-if="mode !== 'view'"
+      variant="primary"
+      class="mr-4 mt-4"
+      @click="saveForm"
+    >
+      {{ mode === "create" ? "Create" : "Save" }}
+    </RButton>
+  </div>
 </template>

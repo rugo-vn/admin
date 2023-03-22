@@ -59,14 +59,6 @@ const removeSelected = async () => {
     dataExplorer.value.sync();
   }
 };
-
-// const syncValue = async () => {
-//   if (dataExplorer.value) {
-//     dataExplorer.value.sync();
-//   }
-// };
-// watch(() => props.tableName, syncValue);
-// syncValue();
 </script>
 
 <template>
@@ -98,7 +90,12 @@ const removeSelected = async () => {
       </RButton>
     </div>
 
-    <DataExplorer ref="dataExplorer" :tableName="tableName" :open="open" />
+    <DataExplorer
+      ref="dataExplorer"
+      :tableName="tableName"
+      :open="open"
+      @remove="removeSelected"
+    />
   </div>
 </template>
 

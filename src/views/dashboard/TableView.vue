@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { nextTick, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import TableData from "../../components/table/TableData.vue";
@@ -19,9 +19,13 @@ const localSchema = ref({});
 const syncValue = async () => {
   if (!route.params.tableName) return;
 
-  tableName.value = route.params.tableName;
-  localSchema.value = schemaStore.getSchema(tableName.value, "");
-  appStore.view = formatLabel(tableName.value);
+  tableName.value = null;
+
+  nextTick(() => {
+    tableName.value = route.params.tableName;
+    localSchema.value = schemaStore.getSchema(tableName.value, "");
+    appStore.view = formatLabel(tableName.value);
+  });
 };
 
 watch(() => route.params.tableName, syncValue);
@@ -30,11 +34,13 @@ syncValue();
 </script>
 
 <template>
-  <RHeading>{{ appStore.view }}</RHeading>
+  <div v-if="tableName">
+    <RHeading>{{ appStore.view }}</RHeading>
 
-  <RPanel>
-    <TableData v-if="localSchema" :tableName="tableName" />
+    <RPanel>
+      <TableData v-if="localSchema" :tableName="tableName" />
 
-    <div v-else class="text-center italic">Table is not found.</div>
-  </RPanel>
+      <div v-else class="text-center italic">Table is not found.</div>
+    </RPanel>
+  </div>
 </template>

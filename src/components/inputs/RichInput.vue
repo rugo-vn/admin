@@ -7,6 +7,7 @@ import { useApiStore } from "../../stores/api.js";
 import { useSchemaStore } from "../../stores/schema.js";
 import { formatLabel } from "../../utils.js";
 import RichEditor from "../RichEditor.vue";
+import ComplexValue from "../values/ComplexValue.vue";
 
 const props = defineProps([
   "label",
@@ -87,7 +88,7 @@ syncValue();
 <template>
   <div>
     <label v-if="!inline && localLabel" class="block uppercase mb-2">{{
-      formatLabel(localLabel)
+      formatLabel(localLabel, true)
     }}</label>
 
     <div v-if="edit" class="rich-input-editor relative">
@@ -110,14 +111,9 @@ syncValue();
       />
     </div>
 
-    <span
-      v-else-if="inline"
-      class="bg-secondary-400 text-white px-2 py-1 rounded text-xs"
-    >
-      Complex
-    </span>
+    <ComplexValue v-else-if="inline" />
 
-    <div v-else v-html="localValue" />
+    <div v-else v-html="localValue"></div>
   </div>
 </template>
 
