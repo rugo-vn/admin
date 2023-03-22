@@ -12,6 +12,7 @@ import DropDown from "../DropDown.vue";
 import DataForm from "./DataForm.vue";
 import { useRouter } from "vue-router";
 import RPagination from "../RPagination.vue";
+import { useAppStore } from "../../stores/app";
 
 const props = defineProps(["tableName", "open"]);
 const emit = defineEmits(["remove"]);
@@ -19,6 +20,7 @@ const emit = defineEmits(["remove"]);
 const selectionStore = useSelectionStore();
 const schemaStore = useSchemaStore();
 const apiStore = useApiStore();
+const appStore = useAppStore();
 const router = useRouter();
 
 const data = ref([]);
@@ -61,15 +63,23 @@ const syncValue = async () => {
 const autoLabel = () => {
   if (!dataTable.value) return;
 
+  const customizeColumnName = `tables.${props.tableName}.columns`;
+  const prevColumns = appStore.getCustomize(customizeColumnName);
+
   const dataTableWidth = dataTable.value.offsetWidth;
 
   localLables.value = [DEFAULT_ID_FIELD];
 
-  for (let name in localSchema.value.properties) {
+  for (let name of prevColumns || Object.keys(localSchema.value.properties)) {
     localLables.value.push(name);
 
     if ((localLables.value.length - 1) * 500 > dataTableWidth) break;
   }
+
+  // appStore.setCustomize(
+  //   customizeColumnName,
+  //   new Array(...localLables.value).slice(1)
+  // );
 };
 
 const toggleSelect = (id, val) => {
@@ -182,7 +192,22 @@ syncValue();
         </th>
 
         <th class="head-_tool font-normal text-xs text-left uppercase">
-          <DropDown :actions="['Columns']" @do:action="" />
+          <div class="relative">
+            <button class="cursor-pointer peer">
+              <EllipsisVerticalIcon class="text-base" />
+            </button>
+
+            <div
+              class="hidden peer-focus:block bg-white drop-shadow rounded absolute mx-2 z-10 overflow-hidden right-0 w-fit"
+            >
+              <div
+                v-for="name in Object.keys(localSchema.properties)"
+                :key="`column-picker.${name}`"
+              >
+                {{ name }}
+              </div>
+            </div>
+          </div>
         </th>
       </thead>
 

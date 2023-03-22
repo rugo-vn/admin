@@ -11,6 +11,7 @@ import {
   TOKEN_NAME,
   VIEW,
 } from "../constants.js";
+import { useAppStore } from "./app.js";
 
 const validateStatus = (status) => status >= 200 && status < 500;
 
@@ -322,6 +323,7 @@ export const useApiStore = defineStore("api", () => {
   const drive = useDriveStore();
   const router = useRouter();
   const schemaStore = useSchemaStore();
+  const appStore = useAppStore();
 
   return {
     http,
@@ -347,6 +349,8 @@ export const useApiStore = defineStore("api", () => {
       schemaStore.setSchemas(schemas);
       schemaStore.setDrives(drives);
       schemaStore.setOverviews(overviews);
+
+      appStore.info = data;
 
       if (location.hash.indexOf("#/dashboard") === -1)
         router.push(VIEW.OverviewView);
