@@ -7,11 +7,13 @@ import TrashIcon from "@rugo-vn/vue/dist/ionicons/TrashIcon.vue";
 import FolderOpenIcon from "@rugo-vn/vue/dist/ionicons/FolderOpenIcon.vue";
 import CutIcon from "@rugo-vn/vue/dist/ionicons/CutIcon.vue";
 import ClipboardIcon from "@rugo-vn/vue/dist/ionicons/ClipboardIcon.vue";
+import DocumentIcon from "@rugo-vn/vue/dist/ionicons/DocumentIcon.vue";
 
 import { useApiStore } from "../../stores/api";
 import FileExplorer from "./FileExplorer.vue";
 import { useSelectionStore } from "../../stores/selection";
 import UploadForm from "./UploadForm.vue";
+import FileForm from "./FileForm.vue";
 
 const props = defineProps(["driveName"]);
 
@@ -22,6 +24,7 @@ const uploadForm = ref(null);
 const fileExplorer = ref(null);
 const parent = ref("/");
 const moveList = ref([]);
+const currentFilePath = ref(undefined);
 
 const removeSelected = async () => {
   if (
@@ -140,7 +143,26 @@ syncValue();
       />
     </RDialog>
 
+    <FileForm
+      v-if="currentFilePath !== undefined"
+      :path="currentFilePath"
+      :model="driveName"
+      :parent="parent"
+      @close="
+        currentFilePath = undefined;
+        $event && syncValue();
+      "
+    />
+
     <div class="toolbar mb-4">
+      <RButton
+        variant="primary"
+        class="justify-center w-8 h-8 px-0 py-0 mr-2"
+        @click="currentFilePath = null"
+      >
+        <DocumentIcon class="text-lg" />
+      </RButton>
+
       <RButton
         variant="primary"
         class="justify-center w-8 h-8 px-0 py-0 mr-2"
@@ -194,6 +216,7 @@ syncValue();
       ref="fileExplorer"
       :driveName="driveName"
       @update:parent="parent = $event"
+      @edit="currentFilePath = $event"
     />
   </div>
 </template>

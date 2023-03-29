@@ -7,14 +7,14 @@ import ImageIcon from "@rugo-vn/vue/dist/ionicons/ImageIcon.vue";
 
 import { useApiStore } from "../../stores/api.js";
 import { useSelectionStore } from "../../stores/selection.js";
-import { DIRECTORY_MIME } from "../../constants.js";
+import { DIRECTORY_MIME, EDITABLE_MIMES } from "../../constants.js";
 import { download } from "../../utils.js";
 import RBreadcrumb from "../RBreadcrumb.vue";
 import { join, basename, dirname, parse } from "path-browserify";
 import DropDown from "../DropDown.vue";
 
 const props = defineProps(["mode", "driveName", "parent"]);
-const emit = defineEmits(["update:parent", "update:value"]);
+const emit = defineEmits(["update:parent", "update:value", "edit"]);
 
 const selectionStore = useSelectionStore();
 const apiStore = useApiStore();
@@ -94,6 +94,10 @@ const handleAction = async (name, item) => {
   let newName;
 
   switch (name) {
+    case "edit":
+      emit("edit", item.path);
+      break;
+
     case "download":
       res = await apiStore.drive.download(props.driveName, item.path);
       download(res, item.name);
@@ -258,6 +262,7 @@ syncValue();
           <td class="w-[1.75rem]" v-if="mode !== 'single'">
             <DropDown
               :actions="[
+                ...(EDITABLE_MIMES.indexOf(item.mime) !== -1 ? ['edit'] : []),
                 ...(item.mime === 'application/zip' ? ['extract'] : []),
                 ...(item.mime !== DIRECTORY_MIME ? ['download'] : []),
                 'compress',

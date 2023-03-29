@@ -8,6 +8,11 @@ export const CUSTOMIZE_NAME = "customize";
 export const NOTICE_TIMEOUT = 2000;
 
 export const DIRECTORY_MIME = "inode/directory";
+export const EDITABLE_MIMES = [
+  "application/json",
+  "application/javascript",
+  "text/plain",
+];
 
 export const SELECT_MODE = {
   none: "none",
