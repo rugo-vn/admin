@@ -84,6 +84,15 @@ const useHttpStore = defineStore("http", {
     handleResponse(res) {
       if (res.status === 200) return res.data;
 
+      if (res.status === 404) {
+        this.pushNotice({
+          title: "Not found",
+          type: "danger",
+        });
+
+        throw `Not found`;
+      }
+
       if (res.data && res.data.error) {
         this.pushNotice({
           ...res.data.error,
@@ -157,11 +166,11 @@ const useTableStore = defineStore("table", () => {
 
   return {
     // table handlers
-    async get(model, id) {
+    async get(tableName, id) {
       const req = http.createHttp();
 
       http.startLoad();
-      const res = await req.get(API.table + model + `/${id}`);
+      const res = await req.get(API.table + tableName + `/${id}`);
       http.endLoad();
 
       return http.handleResponse(res);
@@ -309,6 +318,16 @@ const useDriveStore = defineStore("drive", () => {
       const res = await req.get(
         join(API.drive, driveName, `extract?${qs.stringify({ from, to })}`)
       );
+      http.endLoad();
+
+      return http.handleResponse(res);
+    },
+
+    async upload(form) {
+      const req = http.createHttp();
+
+      http.startLoad();
+      const res = await req.post(API.s3, form);
       http.endLoad();
 
       return http.handleResponse(res);

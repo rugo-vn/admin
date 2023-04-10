@@ -27,6 +27,7 @@ export const API = {
   signIn: "/api/login",
   signUp: "/api/register",
   info: "/api/info",
+  s3: "/api/s3/default",
 };
 
 export const VIEW = new Proxy(

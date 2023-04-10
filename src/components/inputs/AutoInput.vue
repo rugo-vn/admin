@@ -11,49 +11,53 @@ const view = computed(() => {
 
   const schema = props.schema || {};
 
-  switch (schema.type) {
+  switch ((schema.input || schema.type).toLowerCase()) {
     // case "Boolean":
     //   input = Inputs.BooleanInput;
     //   break;
 
-    case "Date":
+    case "date":
       input = Inputs.DateInput;
       break;
 
-    case "String":
-    case "Text":
+    case "string":
+    case "text":
       input = Inputs.TextInput;
       break;
 
-    case "Number":
+    case "number":
       input = Inputs.NumberInput;
       break;
 
-    case "Array":
+    case "array":
       input = Inputs.ListInput;
       break;
 
-    case "Object":
+    case "object":
       if (Object.keys(schema.properties || {}).length)
         input = Inputs.ObjectInput;
       else input = Inputs.JsonInput;
 
       break;
 
-    case "Id":
+    case "id":
       input = Inputs.RelationInput;
+      break;
+
+    case "rich":
+      input = Inputs.RichInput;
       break;
 
     // case "File":
     //   input = Inputs.FileInput;
     //   break;
 
-    // case "Rich":
-    //   input = Inputs.RichInput;
-    //   break;
-
-    case "Json":
+    case "json":
       input = Inputs.JsonInput;
+      break;
+
+    case "upload":
+      input = Inputs.UploadInput;
       break;
   }
 
