@@ -12,9 +12,9 @@ const view = computed(() => {
   const schema = props.schema || {};
 
   switch ((schema.input || schema.type).toLowerCase()) {
-    // case "Boolean":
-    //   input = Inputs.BooleanInput;
-    //   break;
+    case "boolean":
+      input = Inputs.BooleanInput;
+      break;
 
     case "date":
       input = Inputs.DateInput;

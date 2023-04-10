@@ -8,3 +8,4 @@ export { default as RelationInput } from "./RelationInput.vue";
 export { default as FileInput } from "./FileInput.vue";
 export { default as RichInput } from "./RichInput.vue";
 export { default as JsonInput } from "./JsonInput.vue";
+export { default as UploadInput } from "./UploadInput.vue";
