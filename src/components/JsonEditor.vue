@@ -8,8 +8,8 @@ import { highlight, languages } from "prismjs/components/prism-core";
 import "prismjs/components/prism-json";
 import "prismjs/themes/prism.css";
 
-const props = defineProps(["value"]);
-const emit = defineEmits(["update:value"]);
+const props = defineProps(["value", "modelValue"]);
+const emit = defineEmits(["update:value", "update:modelValue"]);
 
 const localValue = ref("");
 const isJson = ref(null);
@@ -20,7 +20,7 @@ const highlighter = (code) => {
 };
 
 const syncValue = () => {
-  const nextValue = objectPath.get(props.value, props.path);
+  const nextValue = objectPath.get(props.value, props.path) || props.modelValue;
 
   if (JSON.stringify(jsonValue) !== JSON.stringify(nextValue)) {
     if (!nextValue) {
@@ -51,9 +51,10 @@ const updateValue = (newValue) => {
   if (isJson.value === false) return;
 
   emit("update:value", jsonValue || undefined);
+  emit("update:modelValue", jsonValue || undefined);
 };
 
-watch(() => [props.value], syncValue, { deep: true });
+watch(() => [props.value, props.modelValue], syncValue, { deep: true });
 
 syncValue();
 </script>

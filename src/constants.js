@@ -38,3 +38,37 @@ export const VIEW = new Proxy(
     },
   }
 );
+
+export const API_DOCS = [
+  { type: "heading", title: "Common" },
+  {
+    type: "endpoint",
+    method: "post",
+    url: "/api/register",
+    payload: { email: "", password: "" },
+    detail: "Register a new user",
+  },
+  {
+    type: "endpoint",
+    method: "post",
+    url: "/api/login",
+    payload: { email: "", password: "" },
+    detail: "Authenticate and get token for private API access.",
+  },
+  {
+    type: "endpoint",
+    method: "post",
+    url: "/api/change-password",
+    payload: { email: "", currentPassword: "", nextPassword: "" },
+    detail: "Change password for specific user.",
+  },
+  {
+    type: "endpoint",
+    method: "get",
+    url: "/api/info",
+    headers: {
+      Authorization: "_.token",
+    },
+    detail: "Get current session information",
+  },
+];
